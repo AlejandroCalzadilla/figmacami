@@ -1,22 +1,9 @@
-.GrapesjsApp{
-    background-color: black;
-    width: 100%;
-    min-height: 100vh;
-    overflow: hidden;
-    .Editor{
-        display: flex;
-        flex-direction: row;
-        flex: 1;
-        width: 100%;
-        #gjs{
-            flex: 7;
-            height: 100%;
-            box-sizing: border-box;
-        }
-        #blocks{
-            flex: 1;
-            padding: 16px;
-            background-color: white;
-        }
-    }
+:host {
+  display: block;
+  height: 100vh;
+  width: 100%;
+}
+#gjs {
+  height: 100%;
+  width: 100%;
 }
