@@ -2,8 +2,7 @@
 <div class="flex h-screen bg-gray-50">
   <!-- Barra lateral de herramientas -->
   <div class="w-16 bg-white shadow-md flex flex-col items-center py-4 border-r border-gray-200">
-    <button 
-    *ngFor="let tool of [
+    <button *ngFor="let tool of [
       {id: 'select', icon: 'fa-mouse-pointer', label: 'Seleccionar'},
       {id: 'pencil', icon: 'fa-pen', label: 'Lápiz'},
       {id: 'rectangle', icon: 'fa-square', label: 'Rectángulo'},
@@ -11,82 +10,158 @@
       {id: 'arrow', icon: 'fa-arrow-right', label: 'Flecha'},
       {id: 'text', icon: 'fa-font', label: 'Texto'}
     ]"
-    class="w-10 h-10 mb-3 rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors"
-    [ngClass]="{'bg-blue-100 text-blue-600': isActive(tool.id, 'tool')}"
-    (click)="
-      tool.id === 'select' ? selectTool('select') : 
+      class="w-10 h-10 mb-3 rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors"
+      [ngClass]="{'bg-blue-100 text-blue-600': isActive(tool.id, 'tool')}" (click)="
+      tool.id === 'select' ? selectTool(tool.id) : 
       tool.id === 'pencil' ? selectTool('pencil') :
       tool.id === 'rectangle' ? addRectangle() :
       tool.id === 'circle' ? addCircle() :
       tool.id === 'arrow' ? addArrow() :
       tool.id === 'text' ? addText() : null
-    "
-    [title]="tool.label"
-  >
-    <i class="fas {{tool.icon}}"></i>
-  </button>
-    
+      
+    " [title]="tool.label">
+      <i class="fas {{tool.icon}}"></i>
+    </button>
+
     <div class="border-t border-gray-200 w-8 my-3"></div>
-    
+
     <!-- Botón de eliminar -->
-    <button 
+    <button
       class="w-10 h-10 mb-3 rounded-lg flex items-center justify-center cursor-pointer hover:bg-red-100 hover:text-red-600 transition-colors"
-      (click)="deleteSelected()"
-      title="Eliminar seleccionado"
-    >
+      (click)="deleteSelected()" title="Eliminar seleccionado">
       <i class="fa fa-trash"></i>
     </button>
   </div>
-  
+
   <!-- Contenido principal -->
   <div class="flex-1 flex flex-col">
     <!-- Barra superior de opciones -->
     <div class="h-14 bg-white border-b border-gray-200 px-4 flex items-center shadow-sm">
       <!-- Colores -->
       <div class="flex space-x-1 mr-6">
-        <div *ngFor="let color of colors" 
+        <div *ngFor="let color of colors"
           class="w-6 h-6 rounded-full cursor-pointer border border-gray-300 flex items-center justify-center"
-          [style.background-color]="color"
-          [ngClass]="{'ring-2 ring-offset-1 ring-blue-500': isActive(color, 'color')}"
-          (click)="selectColor(color)"
-          [title]="'Color ' + color">
-          <i *ngIf="isActive(color, 'color')" class="fa fa-check text-white text-xs" 
+          [style.background-color]="color" [ngClass]="{'ring-2 ring-offset-1 ring-blue-500': isActive(color, 'color')}"
+          (click)="selectColor(color)" [title]="'Color ' + color">
+          <i *ngIf="isActive(color, 'color')" class="fa fa-check text-white text-xs"
             [ngClass]="{'text-black': color === '#F9FAFB' || color === '#FBBF24'}"></i>
         </div>
       </div>
-      
+
       <!-- Grosor de línea -->
-      <div class="flex space-x-2 mr-6">
-        <div *ngFor="let width of strokeWidths"
-          class="cursor-pointer p-1 rounded hover:bg-gray-100"
-          [ngClass]="{'bg-blue-100': isActive(width.toString(), 'stroke')}"
-          (click)="selectStrokeWidth(width)"
+     <!--  <div class="flex space-x-2 mr-6">
+        <div *ngFor="let width of strokeWidths" class="cursor-pointer p-1 rounded hover:bg-gray-100"
+          [ngClass]="{'bg-blue-100': isActive(width.toString(), 'stroke')}" (click)="selectStrokeWidth(width)"
           [title]="'Grosor ' + width">
-          <div class="bg-gray-800 rounded-full" 
-               [style.height.px]="width" 
-               [style.width.px]="12"></div>
+          <div class="bg-gray-800 rounded-full" [style.height.px]="width" [style.width.px]="12"></div>
         </div>
-      </div>
-      
+      </div> -->
+
       <div class="flex-1"></div>
-      
+
+      <!-- Navegación de páginas -->
+      <div class="flex items-center space-x-2 mr-4">
+        <button 
+          class="px-2 py-1 rounded-md bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm"
+          (click)="previousPage()"
+          [disabled]="currentPageIndex === 0"
+          [ngClass]="{'opacity-50 cursor-not-allowed': currentPageIndex === 0}"
+          title="Página anterior">
+          <i class="fa fa-chevron-left"></i>
+        </button>
+        
+        <div class="flex items-center space-x-1">
+          <button 
+            *ngFor="let page of pageNames; let i = index"
+            class="px-2 py-1 rounded-md text-sm"
+            [ngClass]="{'bg-blue-600 text-white': currentPageIndex === i, 'bg-gray-200 text-gray-800 hover:bg-gray-300': currentPageIndex !== i}"
+            (click)="goToPage(i)"
+            [title]="page">
+            {{ i + 1 }}
+          </button>
+        </div>
+        
+        <button 
+          class="px-2 py-1 rounded-md bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm"
+          (click)="nextPage()"
+          [disabled]="currentPageIndex === pageCount - 1"
+          [ngClass]="{'opacity-50 cursor-not-allowed': currentPageIndex === pageCount - 1}"
+          title="Página siguiente">
+          <i class="fa fa-chevron-right"></i>
+        </button>
+        
+        <button 
+          class="px-2 py-1 rounded-md bg-green-600 hover:bg-green-700 text-white text-sm ml-2"
+          (click)="createNewPage()"
+          title="Nueva página">
+          <i class="fa fa-plus"></i>
+        </button>
+        
+        <button 
+          class="px-2 py-1 rounded-md bg-red-600 hover:bg-red-700 text-white text-sm"
+          (click)="deleteCurrentPage()"
+          [disabled]="pageCount <= 1"
+          [ngClass]="{'opacity-50 cursor-not-allowed': pageCount <= 1}"
+          title="Eliminar página actual">
+          <i class="fa fa-trash"></i>
+        </button>
+      </div>
+
       <!-- Botones de acción -->
-      <button 
-        class="px-3 py-1 rounded-md bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm mr-2"
-        (click)="clearCanvas()"
-        title="Limpiar lienzo">
+      <button class="px-3 py-1 rounded-md bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm mr-2"
+        (click)="clearCanvas()" title="Limpiar lienzo">
         <i class="fa fa-trash-alt mr-1"></i> Limpiar
       </button>
-      
-      <button 
-        class="px-3 py-1 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm"
-        (click)="exportImage()"
+
+      <button class="px-3 py-1 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm" (click)="exportImage()"
         title="Exportar imagen">
         <i class="fa fa-download mr-1"></i> Exportar
       </button>
+      <!-- Botón para importar imágenes -->
+      <div class="px-3 py-1   text-gray-800 text-sm ">
+        <label for="fileInput"
+          class="cursor-pointer px-3 py-1 rounded-md bg-green-600 hover:bg-green-700 text-white text-sm">
+          <i class="fa fa-upload mr-1"></i> Importar Imagen
+        </label>
+        <input id="fileInput" type="file" accept="image/*" class="hidden" (change)="onFileSelected($event)" />
+      </div>
     </div>
-    
+
     <!-- Canvas de Konva -->
     <div #konvaContainer class="flex-1 relative konva-container"></div>
+  </div>
+
+   <!-- Modal para editar dimensiones -->
+  
+
+</div>
+
+<!-- Este modal debe estar fuera de tu contenedor flex principal, idealmente justo antes del cierre del body -->
+<div id="dimensionModal" class="fixed inset-0 z-50 hidden ">
+  <!-- Overlay semitransparente -->
+  <div class="absolute inset-0 bg-transparent bg-opacity-50"></div>
+  
+  <!-- Contenedor del modal centrado -->
+  <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-lg p-6 w-96">
+    <h3 class="text-lg font-semibold text-gray-800 mb-4">Editar dimensiones</h3>
+    <div class="space-y-4">
+      <label class="block">
+        <span class="text-sm font-medium text-gray-700">Ancho:</span>
+        <input id="inputWidth" type="number" class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+      </label>
+      <label class="block">
+        <span class="text-sm font-medium text-gray-700">Alto:</span>
+        <input id="inputHeight" type="number" class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+      </label>
+    </div>
+    <div class="mt-6 flex justify-end space-x-3">
+      <button id="cancelDims" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400">
+        Cancelar
+      </button>
+      <button id="saveDims" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+        Guardar
+      </button>
+      
+    </div>
   </div>
 </div>
