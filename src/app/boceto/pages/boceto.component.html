@@ -1,0 +1,92 @@
+<!-- drawing-board.component.html -->
+<div class="flex h-screen bg-gray-50">
+  <!-- Barra lateral de herramientas -->
+  <div class="w-16 bg-white shadow-md flex flex-col items-center py-4 border-r border-gray-200">
+    <button 
+    *ngFor="let tool of [
+      {id: 'select', icon: 'fa-mouse-pointer', label: 'Seleccionar'},
+      {id: 'pencil', icon: 'fa-pen', label: 'Lápiz'},
+      {id: 'rectangle', icon: 'fa-square', label: 'Rectángulo'},
+      {id: 'circle', icon: 'fa-circle', label: 'Círculo'},
+      {id: 'arrow', icon: 'fa-arrow-right', label: 'Flecha'},
+      {id: 'text', icon: 'fa-font', label: 'Texto'}
+    ]"
+    class="w-10 h-10 mb-3 rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors"
+    [ngClass]="{'bg-blue-100 text-blue-600': isActive(tool.id, 'tool')}"
+    (click)="
+      tool.id === 'select' ? selectTool('select') : 
+      tool.id === 'pencil' ? selectTool('pencil') :
+      tool.id === 'rectangle' ? addRectangle() :
+      tool.id === 'circle' ? addCircle() :
+      tool.id === 'arrow' ? addArrow() :
+      tool.id === 'text' ? addText() : null
+    "
+    [title]="tool.label"
+  >
+    <i class="fas {{tool.icon}}"></i>
+  </button>
+    
+    <div class="border-t border-gray-200 w-8 my-3"></div>
+    
+    <!-- Botón de eliminar -->
+    <button 
+      class="w-10 h-10 mb-3 rounded-lg flex items-center justify-center cursor-pointer hover:bg-red-100 hover:text-red-600 transition-colors"
+      (click)="deleteSelected()"
+      title="Eliminar seleccionado"
+    >
+      <i class="fa fa-trash"></i>
+    </button>
+  </div>
+  
+  <!-- Contenido principal -->
+  <div class="flex-1 flex flex-col">
+    <!-- Barra superior de opciones -->
+    <div class="h-14 bg-white border-b border-gray-200 px-4 flex items-center shadow-sm">
+      <!-- Colores -->
+      <div class="flex space-x-1 mr-6">
+        <div *ngFor="let color of colors" 
+          class="w-6 h-6 rounded-full cursor-pointer border border-gray-300 flex items-center justify-center"
+          [style.background-color]="color"
+          [ngClass]="{'ring-2 ring-offset-1 ring-blue-500': isActive(color, 'color')}"
+          (click)="selectColor(color)"
+          [title]="'Color ' + color">
+          <i *ngIf="isActive(color, 'color')" class="fa fa-check text-white text-xs" 
+            [ngClass]="{'text-black': color === '#F9FAFB' || color === '#FBBF24'}"></i>
+        </div>
+      </div>
+      
+      <!-- Grosor de línea -->
+      <div class="flex space-x-2 mr-6">
+        <div *ngFor="let width of strokeWidths"
+          class="cursor-pointer p-1 rounded hover:bg-gray-100"
+          [ngClass]="{'bg-blue-100': isActive(width.toString(), 'stroke')}"
+          (click)="selectStrokeWidth(width)"
+          [title]="'Grosor ' + width">
+          <div class="bg-gray-800 rounded-full" 
+               [style.height.px]="width" 
+               [style.width.px]="12"></div>
+        </div>
+      </div>
+      
+      <div class="flex-1"></div>
+      
+      <!-- Botones de acción -->
+      <button 
+        class="px-3 py-1 rounded-md bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm mr-2"
+        (click)="clearCanvas()"
+        title="Limpiar lienzo">
+        <i class="fa fa-trash-alt mr-1"></i> Limpiar
+      </button>
+      
+      <button 
+        class="px-3 py-1 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm"
+        (click)="exportImage()"
+        title="Exportar imagen">
+        <i class="fa fa-download mr-1"></i> Exportar
+      </button>
+    </div>
+    
+    <!-- Canvas de Konva -->
+    <div #konvaContainer class="flex-1 relative konva-container"></div>
+  </div>
+</div>
