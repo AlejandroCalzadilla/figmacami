@@ -6,11 +6,11 @@ export enum TipoProyecto {
     FIGMA = 'figma'
 }
 export interface Proyecto {
-    id: string;
+    id?: string;
     title: string;
     description: string;
-    created: string
-    updated: string
+    created?: string
+    updated?: string
     tipo: TipoProyecto;
     userid: string;
     data: string;

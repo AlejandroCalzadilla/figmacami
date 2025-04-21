@@ -24,7 +24,33 @@ private readonly baseUrl: string = environment.baseUrl;
      
   }
 
+  create( proyecto: Proyecto ): Observable<Proyecto> {
+    const url  = `${ this.baseUrl }/api/proyecto`;
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders()
+      .set('Authorization', `Bearer ${ token }`);
+    return this.http.post<Proyecto>( url, proyecto, {headers} );
+  }
 
+
+  findById( id: string ): Observable<Proyecto> {
+    const url  = `${ this.baseUrl }/api/proyecto/${ id }`;
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders()
+      .set('Authorization', `Bearer ${ token }`);
+    return this.http.get<Proyecto>( url, {headers} );
+  }
+
+
+  UpdateData(id: string, data: string): Observable<Proyecto> {
+    const url = `${this.baseUrl}/api/proyecto/nodes?id=${id}`; // URL de la API para actualizar el proyecto
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders()
+      .set('Authorization', `Bearer ${token}`)   
+    const body = { data }; // El cuerpo de la solicitud
+    
+    return this.http.patch<Proyecto>(url, body, { headers });
+  }
 
 
 

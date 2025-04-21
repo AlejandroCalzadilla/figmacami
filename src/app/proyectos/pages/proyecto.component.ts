@@ -21,7 +21,6 @@ export default class ProyectoComponent {
     private route = inject(Router) // Rutas de la aplicación
 
     ngOnInit(): void {
-        // Simulación de datos iniciales
          this.ProyectoService.findAll().subscribe( (proyectos: Proyecto[]) => {
             this.proyectos = proyectos;
             console.log("Proyectos cargados:", this.proyectos);
@@ -40,12 +39,18 @@ export default class ProyectoComponent {
 
     dibujar(proyecto: Proyecto): void {
          if( proyecto.tipo === TipoProyecto.BOCETO ){
-            this.route.navigate(['/boceto', proyecto.id]);
+            this.route.navigate(['/boceto',proyecto.id ]);
          }
          if( proyecto.tipo === TipoProyecto.FIGMA ){
-         this.route.navigate(['/pizarra', proyecto.id]); 
+         this.route.navigate(['/pizarra',proyecto.id]); 
         }  
     
     }
+
+    create(){
+        this.route.navigate(['/createproyecto']);
+    }
+
+
 
 }

@@ -113,6 +113,11 @@ export class BocetoComponent implements AfterViewInit {
 
     // Incrementar el contador de páginas después de la comparación
     this.pageCount++;
+    
+    // Forzar la detección de cambios después de actualizar pageCount
+    setTimeout(() => {
+      this.cdr.detectChanges();
+    });
   }
 
   showCurrentPage(): void {
@@ -139,8 +144,10 @@ export class BocetoComponent implements AfterViewInit {
     this.selectedShape = null;
     this.currentTool = 'select';
 
-    // Forzar la detección de cambios
-    this.cdr.detectChanges();
+    // Forzar la detección de cambios en el siguiente ciclo
+    setTimeout(() => {
+      this.cdr.detectChanges();
+    });
   }
 
   nextPage(): void {
@@ -166,20 +173,47 @@ export class BocetoComponent implements AfterViewInit {
 
   deleteCurrentPage(): void {
     if (this.pageCount > 1) {
-      // Eliminar la página actual
-      this.stages[this.currentPageIndex].destroy();
+      // Obtener el stage y el contenedor a eliminar
+      const stageToDelete = this.stages[this.currentPageIndex];
+      const containerToDelete = stageToDelete.container();
+
+      // Eliminar el stage y limpiar recursos
+      stageToDelete.destroy();
+      if (containerToDelete && containerToDelete.parentNode) {
+        containerToDelete.parentNode.removeChild(containerToDelete);
+      }
+
+      // Eliminar referencias
       this.stages.splice(this.currentPageIndex, 1);
       this.layers.splice(this.currentPageIndex, 1);
       this.transformers.splice(this.currentPageIndex, 1);
       this.pageNames.splice(this.currentPageIndex, 1);
       this.pageCount--;
-      
+
       // Ajustar el índice si es necesario
       if (this.currentPageIndex >= this.pageCount) {
         this.currentPageIndex = this.pageCount - 1;
       }
-      // Mostrar la página actual
-      this.showCurrentPage();
+
+      // Limpiar el estado actual
+      this.selectedShape = null;
+      this.currentTool = 'select';
+
+      // Mostrar la página actual y actualizar el transformador
+      const currentStage = this.stages[this.currentPageIndex];
+      const currentTransformer = this.transformers[this.currentPageIndex];
+      
+      if (currentStage && currentTransformer) {
+        currentStage.container().style.display = 'block';
+        currentStage.draw();
+        this.drawingService.setTransformer(currentTransformer);
+        this.drawingService.enableDoubleClickEdit(currentStage);
+      }
+
+      // Forzar la detección de cambios en el siguiente ciclo
+      setTimeout(() => {
+        this.cdr.detectChanges();
+      });
     }
   }
 

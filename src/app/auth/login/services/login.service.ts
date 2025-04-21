@@ -22,39 +22,37 @@ private readonly baseUrl: string = environment.baseUrl;
 
 
   constructor() {
-    this.checkAuthStatus().subscribe();
+    //this.checkAuthStatus().subscribe();
   }
 
-  private setAuthentication(user: User, token:string): boolean {
+  private setAuthentication(id: string, token:string): boolean {
 
-    this._currentUser.set( user );
-    this._authStatus.set( AuthStatus.authenticated );
+    //this._currentUser.set( user );
+    //this._authStatus.set( AuthStatus.authenticated );
+
+    //console.log("user",user);
     localStorage.setItem('token', token);
+    localStorage.setItem('userId',id );
     return true;
   }
 
   login( email: string, password: string ): Observable<boolean> {
-
+    console.log("loginnservicee");
     const url  = `${ this.baseUrl }/api/auth/login`;
     const body = { email, password };
-    console.log("login service", body);
-    return this.http.post<LoginResponse>( url, body )
+    return this.http.post<any>( url, body )
       .pipe(
-        map( ({ user, token }) => this.setAuthentication( user, token )),
-        catchError( err => throwError( () => err.error.message ))
+        map( ({ id, token }) => this.setAuthentication( id, token )),
       );
   }
 
-  checkAuthStatus():Observable<boolean> {
-
+  /* checkAuthStatus():Observable<boolean> {
     const url   = `${ this.baseUrl }/auth/check-token`;
     const token = localStorage.getItem('token');
-
     if ( !token ) {
       this.logout();
       return of(false);
     }
-
     const headers = new HttpHeaders()
       .set('Authorization', `Bearer ${ token }`);
       return this.http.get<CheckTokenResponse>(url, { headers })
@@ -66,7 +64,7 @@ private readonly baseUrl: string = environment.baseUrl;
           })
         );
 
-  }
+  } */
 
   logout() {
     localStorage.removeItem('token');
