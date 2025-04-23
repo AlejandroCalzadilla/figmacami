@@ -21,7 +21,8 @@ export default class ProyectoComponent {
     private route = inject(Router) // Rutas de la aplicación
 
     ngOnInit(): void {
-         this.ProyectoService.findAll().subscribe( (proyectos: Proyecto[]) => {
+         const userid=localStorage.getItem('userId') || '0';
+         this.ProyectoService.findAll(userid).subscribe( (proyectos: Proyecto[]) => {
             this.proyectos = proyectos;
             console.log("Proyectos cargados:", this.proyectos);
         });
@@ -48,6 +49,7 @@ export default class ProyectoComponent {
     }
 
     create(){
+        
         this.route.navigate(['/createproyecto']);
     }
 

@@ -4,8 +4,7 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class ExportadorAngularService {
-  constructor() { }
-
+  constructor() { }  
   transformarHTMLaComponente(htmlString: string, nombreComponente: string): { componente: string, servicio: string, interfaz: string } {
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlString, 'text/html');
@@ -49,8 +48,8 @@ export class ExportadorAngularService {
 
   private generarInterfaz(nombreComponente: string, propiedades: string): string {
     return `export interface I${nombreComponente} {
-  id?: string;
-${propiedades}
+    id?: string;
+   ${propiedades}
 }`;
   }
 

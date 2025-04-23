@@ -40,12 +40,12 @@ export default class ProyectocreateComponent {
         if(this.proyecto.tipo === TipoProyecto.BOCETO ){
             // Aquí puedes redirigir al usuario a la página de boceto
             console.log('Redirigiendo a la página de boceto...');
-             this.router.navigate(['/boceto']);   
+             this.router.navigate(['/boceto',response.id ]);   
         }
            else if(this.proyecto.tipo === TipoProyecto.FIGMA ){
             // Aquí puedes redirigir al usuario a la página de figma
             console.log('Redirigiendo a la página de figma...');
-             this.router.navigate(['/pizarra']);
+             this.router.navigate(['/pizarra',response.id ]);
            }  
         // Aquí puedes redirigir al usuario o mostrar un mensaje de éxito
       },

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject } from '@angular/core';
+import {  Component, inject } from '@angular/core';
 import grapesjs from 'grapesjs';
 import presetWebpage from 'grapesjs-preset-webpage';
 import { addFormsBlocks } from '../../components/bloques/formularios';
@@ -9,7 +9,9 @@ import { io } from 'socket.io-client';
 import { ProyectoService } from '../../../proyectos/services/proyecto.service';
 import { ActivatedRoute } from '@angular/router';
 import { Proyecto } from '../../../proyectos/interfaces/proyecto';
-import { FormGroup } from '@angular/forms';
+import { ExportarPizarraService } from '../../services/exportar_pizarra.service';
+import { PageContent } from '../../interfaces/pagecontent';
+import { PaginacionService } from '../../services/paginacion.service';
 @Component({
   selector: 'app-pizarrapage',
   imports: [CommonModule],
@@ -24,20 +26,19 @@ export class PizarrapageComponent  {
   private socket: any;
   private roomId: string = 'default-room';
   private lastSentState: string = ''; // Para comparar y solo enviar cuando haya cambios reales
-  private isEditing: boolean = false; // Para detectar ediciones activas
-  private mouseMovementTimer: any = null;
   private proyectoService = inject(ProyectoService);
   private id!: string;
   private proyecto!: Proyecto;
   private route = inject(ActivatedRoute);
+
+  private exportarpizaarraservice=inject(ExportarPizarraService);
+  private paginacionService = inject(PaginacionService);
 
 
   ngOnInit(): void {
     // Suscribirse a los parámetros de la ruta
     this.route.params.subscribe(params => {
       this.id = params['id']; // Capturar el valor del parámetro 'id'
-
-      console.log('ID recibido:', this.id);
       this.proyectoService.findById(this.id).subscribe(
         resp => {
           if (Array.isArray(resp) && resp.length > 0) {
@@ -53,7 +54,6 @@ export class PizarrapageComponent  {
         }
       );
     });
-
 
   }
 
@@ -72,18 +72,12 @@ export class PizarrapageComponent  {
   
       if (this.proyecto.data) {
         try {
-          // Primer parseo: convierte el string JSON externo en un objeto
           const outerData = JSON.parse(this.proyecto.data);
-      
           // Segundo parseo: convierte el string JSON interno en un objeto
           const parsedData = JSON.parse(outerData.data);
-      
-          console.log('Datos del proyecto parseados:', parsedData);
-      
           // Extrae los html y css
           const pages = [];
-          const pagescss = [];
-      
+          const pagescss = []; 
           for (const key in parsedData) {
             if (key.includes('_html')) {
               console.log('HTML encontrado:', key);
@@ -97,22 +91,21 @@ export class PizarrapageComponent  {
       
           this.pages = pages;
           this.pagescss = pagescss;
-      
           // Cargamos la primera página si hay alguna
           if (this.pages.length > 0) {
             this.editor.setComponents(this.pages[0]);
             this.editor.setStyle(this.pagescss[0]);
+            this.paginacionService.setPages(pages);
+            this.paginacionService.setPagesCss(pagescss);
+            this.paginacionService.setEditor(this.editor);
+  
           }
-      
-          console.log('Páginas cargadas:', this.pages);
+          //console.log('Páginas cargadas:', this.pages);
         } catch (error) {
           console.error('Error al parsear los datos del proyecto:', error);
         }
       }
-      
-  
       this.initializeSocketConnection();
-  
       const debouncedSendEditorState = this.debounce(() => {
         this.sendEditorState();
       }, 2000);
@@ -124,10 +117,11 @@ export class PizarrapageComponent  {
       this.editor.on('change:changesCount', () => {
         debouncedSendEditorState();
       });
-  
       this.botonguardar();
       this.botonExportar();
-      this.updatePagination();
+    
+      this.paginacionService.updatePagination(      );
+      //this.updatePagination();
       addFormsBlocks(this.editor);
       addCrudsBlocks(this.editor);
       addComponentesBlocks(this.editor);
@@ -147,9 +141,6 @@ export class PizarrapageComponent  {
     });
     this.editor.Commands.add('mi-comando', {
       run: function(editor:any, sender:any) {
-        // Tu función personalizada aquí
-       // console.log('Botón personalizado clickeado');
-        // Llama a la función que deseas ejecutar
         miFuncionPersonalizada();
       }
     });
@@ -175,52 +166,35 @@ export class PizarrapageComponent  {
    
     this.editor.Panels.addButton('options', {
       id: 'mi-boton-exportar',
-      className: 'fa-brands fa-angular', // Puedes usar iconos de Font Awesome
-      command: 'mi-exportar', // El identificador del comando que se ejecutará
+      className: 'fa-brands fa-angular', 
+      command: 'mi-exportar', 
       attributes: { title: 'exportar' },
       active: false
     });
     this.editor.Commands.add('mi-exportar', {
       run: function(editor:any, sender:any) {
-        // Tu función personalizada aquí
-       // console.log('Botón personalizado clickeado');
-        // Llama a la función que deseas ejecutar
         miFuncionPersonalizada();
-      }
-    });
 
-    const miFuncionPersonalizada = () => {
-      // Implementa aquí la lógica que deseas ejecutar
-      const allPagesContent = this.pages.map((page, index) => {
+      }
+    });    
+    const miFuncionPersonalizada = () => { 
+      const totalPages= this.pages.length;
+      const allPagesContent: PageContent[] = this.pages.map((page, index) => {
         const html = this.editor.getHtml(); // Obtiene el HTML actual del editor
         const css = this.editor.getCss();  // Obtiene el CSS actual del editor
-        return { [`page${index + 1}_html`]: html, [`page${index + 1}_css`]: css };
+        return { html, css }; // Devuelve un objeto que cumple con la interfaz PageContent
       });
-    
-
-      console.log('Contenido de todas las páginas como JSON:', allPagesContent);
-      //console.log('Css de la pagina ', allPagesContent);
-      
-      // Convierte el contenido a un JSON string
-      const jsonData = JSON.stringify(
-        allPagesContent.reduce((acc, pageContent) => ({ ...acc, ...pageContent }), {})
-      );
-    
-      
-      console.log(this.id, 'esta el id en esta parte?');  
-      // Llama al servicio para enviar los datos al servidor
-      this.proyectoService.UpdateData(this.id, jsonData).subscribe(
-        (resp) => {
-          console.log('Respuesta del servidor en UpdateData:', resp);
-        },
-        (err) => {
-          console.error('Error al enviar los datos al servidor:', err);
-        }
-      );
-    };
+      console.log('Contenido de todas las páginas como JSON:', allPagesContent);   
+      this.prueba(allPagesContent,totalPages);
+      };
 
 
   }
+
+  private prueba(contenido:PageContent[], totalPages: number){
+     this.exportarpizaarraservice.contenido(contenido, totalPages);
+  }
+
 
 
   private initializeSocketConnection(): void {
@@ -267,105 +241,6 @@ export class PizarrapageComponent  {
       clearTimeout(timeout);
       timeout = setTimeout(() => func(...args), wait);
     };
-  }
-
-
-
-  getAllPagesContent(): { html: string; css: string }[] {
-    const allPagesContent = this.pages.map((page, index) => {
-      const html = this.editor.getHtml(); // Obtiene el HTML actual del editor
-      const css = this.editor.getCss();  // Obtiene el CSS actual del editor
-      return { html, css };
-    });
-  
-   // console.log('Contenido de todas las páginas:', allPagesContent);
-    return allPagesContent;
-  }
-
-  guardar(): void {
-    const allPagesContent = this.getAllPagesContent();
-    console.log('Guardando contenido de todas las páginas:', allPagesContent);
-  
-    // Aquí puedes enviar los datos al backend o realizar otra acción
-    // Ejemplo:
-    // this.backendService.savePages(allPagesContent).subscribe(response => {
-    //   console.log('Contenido guardado exitosamente:', response);
-    // });
-  }
-
-
-
-
-
-
-  private updatePagination(): void {
-    const paginationPanel = document.getElementById('pagination-panel');
-    if (!paginationPanel) return;
-
-    paginationPanel.innerHTML = `
-    <button id="prev-page" title="Página Anterior"><i class="fa fa-chevron-left"></i></button>
-    <span>Página ${this.currentPage + 1} de ${this.pages.length}</span>
-    <button id="next-page" title="Página Siguiente"><i class="fa fa-chevron-right"></i></button>
-    <button id="add-page" title="Nueva Página"><i class="fa fa-plus"></i></button>
-  `;
-
-    const prevBtn = document.getElementById('prev-page') as HTMLButtonElement;
-    const nextBtn = document.getElementById('next-page') as HTMLButtonElement;
-    const addBtn = document.getElementById('add-page') as HTMLButtonElement;
-
-    prevBtn.disabled = this.currentPage === 0;
-    nextBtn.disabled = this.currentPage === this.pages.length - 1;
-
-    prevBtn.onclick = () => {
-      if (this.currentPage > 0) {
-        //this.pages[this.currentPage] = this.editor.getHtml();
-        this.saveCurrentPage();
-        this.currentPage--;
-        // this.editor.setComponents(this.pages[this.currentPage]);
-        this.loadPage(this.currentPage); // Carga la página anterior
-        //this.editor
-        this.updatePagination();
-      }
-    };
-
-    nextBtn.onclick = () => {
-      if (this.currentPage < this.pages.length - 1) {
-        // this.pages[this.currentPage] = this.editor.getHtml();
-        this.saveCurrentPage();
-        this.currentPage++;
-        // this.editor.setComponents(this.pages[this.currentPage]);
-        this.loadPage(this.currentPage); // Carga la página siguiente
-        this.updatePagination();
-      }
-    };
-
-    addBtn.onclick = () => {
-
-      // this.pages[this.currentPage] = this.editor.getHtml();
-      this.saveCurrentPage();
-      this.pages.push('<p>Nueva Página</p>');
-      this.currentPage = this.pages.length - 1;
-      //this.editor.setComponents(this.pages[this.currentPage]);
-      this.loadPage(this.currentPage); // Carga la nueva página
-      this.updatePagination();
-    };
-  }
-
-  private saveCurrentPage(): void {
-    this.pages[this.currentPage] = this.editor.getHtml();
-    this.pagescss[this.currentPage] = this.editor.getCss();
-  }
-
-
-  private loadPage(pageIndex: number): void {
-    const page = this.pages[pageIndex];
-    if (page) {
-      const estilosycss = {
-        styles: this.pagescss[pageIndex],
-        components: this.pages[pageIndex]
-      }
-      this.editor.setComponents(estilosycss)
-    }
   }
 }
 

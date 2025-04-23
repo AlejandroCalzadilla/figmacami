@@ -1,17 +1,18 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { environment } from '../../../../environments/environment.prod';
+import { environment } from '../../../environments/environment.prod';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { User } from '../interfaces/User';
 import { AuthStatus } from '../interfaces/AuthStatus';
 import { LoginResponse } from '../interfaces/login-response.interface';
 import { catchError, map, Observable, of, throwError } from 'rxjs';
 import { CheckTokenResponse } from '../interfaces/check-token.response';
+import { RegisterForm } from '../interfaces/register';
 
 @Injectable({
     providedIn:'root'
 })
 
-export class LoginService {
+export class AuthService {
 private readonly baseUrl: string = environment.baseUrl;
   private http = inject( HttpClient );
 
@@ -27,10 +28,6 @@ private readonly baseUrl: string = environment.baseUrl;
 
   private setAuthentication(id: string, token:string): boolean {
 
-    //this._currentUser.set( user );
-    //this._authStatus.set( AuthStatus.authenticated );
-
-    //console.log("user",user);
     localStorage.setItem('token', token);
     localStorage.setItem('userId',id );
     return true;
@@ -46,25 +43,21 @@ private readonly baseUrl: string = environment.baseUrl;
       );
   }
 
-  /* checkAuthStatus():Observable<boolean> {
-    const url   = `${ this.baseUrl }/auth/check-token`;
-    const token = localStorage.getItem('token');
-    if ( !token ) {
-      this.logout();
-      return of(false);
-    }
-    const headers = new HttpHeaders()
-      .set('Authorization', `Bearer ${ token }`);
-      return this.http.get<CheckTokenResponse>(url, { headers })
-        .pipe(
-          map( ({ user, token }) => this.setAuthentication( user, token )),
-          catchError(() => {
-            this._authStatus.set( AuthStatus.notAuthenticated );
-            return of(false);
-          })
-        );
 
-  } */
+  public register( formData: RegisterForm ): Observable<any> {
+    const url = `${ this.baseUrl }/api/auth/register`;
+    return this.http.post<any>( url, formData )
+      .pipe(
+        map( ({ id, token }) => this.setAuthentication( id, token )),
+        catchError( err => {
+          console.log(err);
+          return throwError(() => new Error('Error en el registro'));
+        })
+      );
+  }  
+
+
+  
 
   logout() {
     localStorage.removeItem('token');

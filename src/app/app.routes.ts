@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { PizarrapageComponent } from './pizarra/pages/pizarrapage/pizarrapage.component';
-import { LoginComponent } from './auth/login/pages/login.component';
+import { LoginComponent } from './auth/pages/login/login.component';
 import ProyectoComponent from './proyectos/pages/proyecto.component';
 import { BocetoComponent } from './boceto/pages/boceto.component';
 
@@ -29,6 +29,11 @@ export const routes: Routes = [
 
     {
         path:'exportar', loadComponent: () => import('./exportar/pages/exportador.component')
+    },
+
+    {
+ 
+        path:'register', loadComponent: () => import('./auth/pages/register/register.component')
     },
 
     {path:'**', redirectTo: 'login', pathMatch: 'full'},

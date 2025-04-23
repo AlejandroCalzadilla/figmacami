@@ -1,5 +1,5 @@
 import { Component, inject } from "@angular/core";
-import { LoginService } from "../services/login.service";
+import { AuthService } from "../../services/auth.service";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { Router, RouterLink, RouterOutlet } from "@angular/router";
@@ -10,9 +10,8 @@ import { Router, RouterLink, RouterOutlet } from "@angular/router";
     templateUrl: './login.component.html',
     imports: [
         FormsModule,
-      
-
-       
+        RouterLink,
+    
     ],
 })
 
@@ -21,7 +20,7 @@ export class LoginComponent {
     password: string = '';
   
     private router      = inject( Router )
-    private loginService= inject(LoginService);
+    private loginService= inject(AuthService);
 
     login(){
         this.loginService.login(this.email, this.password)

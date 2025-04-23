@@ -1,4 +1,4 @@
-import { User } from "../../auth/login/interfaces/User"
+import { User } from "../../auth/interfaces/User"
 
 export interface ProyectoToUser {
     id: number    

@@ -40,8 +40,8 @@ export function addCrudsBlocks(editor:any){
               <label for="message" style="display: block; margin-bottom: 5px;">Mensaje:</label>
               <textarea id="message" name="message" rows="4" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"></textarea>
             </div>
-            <button type="submit" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Enviar</button>
-          </form>
+          <button  disabled type="submit" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;" contenteditable="false"> Crear</button>
+            </form>
         `,
         attributes: { class: 'fa fa-wpforms' }
       });
@@ -90,7 +90,7 @@ export function addCrudsBlocks(editor:any){
               <label for="message" style="display: block; margin-bottom: 5px;">Mensaje:</label>
               <textarea id="message" name="message" rows="4" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"></textarea>
             </div>
-            <button type="submit" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Enviar</button>
+           <button disabled type="submit" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;" contenteditable="false"> editar</button>
           </form>
         `,
         attributes: { class: 'fa fa-wpforms' }

@@ -15,8 +15,8 @@ private readonly baseUrl: string = environment.baseUrl;
   private http = inject( HttpClient );
 
 
- findAll( ): Observable<Proyecto[]> {
-    const url  = `${ this.baseUrl }/api/proyecto`;
+ findAll( userid:string): Observable<Proyecto[]> {
+    const url  = `${ this.baseUrl }/api/proyecto/user/${ userid }`;
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders()
       .set('Authorization', `Bearer ${ token }`);
