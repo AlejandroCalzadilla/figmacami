@@ -1,5 +1,6 @@
+export const packageJson = `
 {
-  "name": "grapangular",
+  "name": "generico",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -18,24 +19,7 @@
     "@angular/platform-browser": "^19.1.0",
     "@angular/platform-browser-dynamic": "^19.1.0",
     "@angular/router": "^19.1.0",
-    "@fortawesome/fontawesome-free": "^6.7.2",
-    "@grapesjs/studio-sdk": "^1.0.39",
-    "@stomp/stompjs": "^7.1.1",
-    "@tailwindcss/postcss": "^4.1.4",
-    "@types/fabric": "^5.3.10",
-    "fabric": "^6.6.4",
-    "file-saver": "^2.0.5",
-    "grapesjs": "^0.22.6",
-    "grapesjs-preset-webpage": "^1.0.3",
-    "jszip": "^3.10.1",
-    "konva": "^9.3.20",
-    "pako": "^2.1.0",
-    "postcss": "^8.5.3",
     "rxjs": "~7.8.0",
-    "socket.io-client": "^4.8.1",
-    "sockjs-client": "^1.6.1",
-    "stompjs": "^2.3.3",
-    "tailwindcss": "^4.1.4",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
   },
@@ -43,12 +27,7 @@
     "@angular-devkit/build-angular": "^19.1.4",
     "@angular/cli": "^19.1.4",
     "@angular/compiler-cli": "^19.1.0",
-    "@types/file-saver": "^2.0.7",
     "@types/jasmine": "~5.1.0",
-    "@types/jszip": "^3.4.0",
-    "@types/pako": "^2.0.3",
-    "@types/sockjs-client": "^1.5.4",
-    "@types/stompjs": "^2.3.9",
     "jasmine-core": "~5.5.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
@@ -58,3 +37,4 @@
     "typescript": "~5.7.2"
   }
 }
+    `;

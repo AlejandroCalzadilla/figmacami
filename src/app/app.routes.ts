@@ -27,6 +27,10 @@ export const routes: Routes = [
         path: 'createproyecto', loadComponent: () => import('./proyectos/components/create/proyectocreate.component')
     },
 
+    {
+        path:'exportar', loadComponent: () => import('./exportar/pages/exportador.component')
+    },
+
     {path:'**', redirectTo: 'login', pathMatch: 'full'},
 
 

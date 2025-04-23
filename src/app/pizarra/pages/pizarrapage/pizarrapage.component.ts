@@ -9,6 +9,7 @@ import { io } from 'socket.io-client';
 import { ProyectoService } from '../../../proyectos/services/proyecto.service';
 import { ActivatedRoute } from '@angular/router';
 import { Proyecto } from '../../../proyectos/interfaces/proyecto';
+import { FormGroup } from '@angular/forms';
 @Component({
   selector: 'app-pizarrapage',
   imports: [CommonModule],
@@ -125,6 +126,7 @@ export class PizarrapageComponent  {
       });
   
       this.botonguardar();
+      this.botonExportar();
       this.updatePagination();
       addFormsBlocks(this.editor);
       addCrudsBlocks(this.editor);
@@ -146,7 +148,7 @@ export class PizarrapageComponent  {
     this.editor.Commands.add('mi-comando', {
       run: function(editor:any, sender:any) {
         // Tu función personalizada aquí
-        console.log('Botón personalizado clickeado');
+       // console.log('Botón personalizado clickeado');
         // Llama a la función que deseas ejecutar
         miFuncionPersonalizada();
       }
@@ -163,8 +165,48 @@ export class PizarrapageComponent  {
       const jsonData = JSON.stringify(
         allPagesContent.reduce((acc, pageContent) => ({ ...acc, ...pageContent }), {})
       );
-    
       console.log('Contenido de todas las páginas como JSON:', jsonData);
+      console.log(this.id, 'esta el id en esta parte?');  
+    };
+  } 
+
+
+  private botonExportar(){
+   
+    this.editor.Panels.addButton('options', {
+      id: 'mi-boton-exportar',
+      className: 'fa-brands fa-angular', // Puedes usar iconos de Font Awesome
+      command: 'mi-exportar', // El identificador del comando que se ejecutará
+      attributes: { title: 'exportar' },
+      active: false
+    });
+    this.editor.Commands.add('mi-exportar', {
+      run: function(editor:any, sender:any) {
+        // Tu función personalizada aquí
+       // console.log('Botón personalizado clickeado');
+        // Llama a la función que deseas ejecutar
+        miFuncionPersonalizada();
+      }
+    });
+
+    const miFuncionPersonalizada = () => {
+      // Implementa aquí la lógica que deseas ejecutar
+      const allPagesContent = this.pages.map((page, index) => {
+        const html = this.editor.getHtml(); // Obtiene el HTML actual del editor
+        const css = this.editor.getCss();  // Obtiene el CSS actual del editor
+        return { [`page${index + 1}_html`]: html, [`page${index + 1}_css`]: css };
+      });
+    
+
+      console.log('Contenido de todas las páginas como JSON:', allPagesContent);
+      //console.log('Css de la pagina ', allPagesContent);
+      
+      // Convierte el contenido a un JSON string
+      const jsonData = JSON.stringify(
+        allPagesContent.reduce((acc, pageContent) => ({ ...acc, ...pageContent }), {})
+      );
+    
+      
       console.log(this.id, 'esta el id en esta parte?');  
       // Llama al servicio para enviar los datos al servidor
       this.proyectoService.UpdateData(this.id, jsonData).subscribe(
@@ -176,7 +218,9 @@ export class PizarrapageComponent  {
         }
       );
     };
-  } 
+
+
+  }
 
 
   private initializeSocketConnection(): void {
@@ -211,7 +255,7 @@ export class PizarrapageComponent  {
           styles: currentCss,
         };
         this.socket.emit('editor-update', changes);
-        console.log('Estado enviado al servidor.');
+       // console.log('Estado enviado al servidor.');
       } else {
       }
     }, 1000); // Espera 1 segundo tras el último cambio antes de enviar
@@ -234,7 +278,7 @@ export class PizarrapageComponent  {
       return { html, css };
     });
   
-    console.log('Contenido de todas las páginas:', allPagesContent);
+   // console.log('Contenido de todas las páginas:', allPagesContent);
     return allPagesContent;
   }
 

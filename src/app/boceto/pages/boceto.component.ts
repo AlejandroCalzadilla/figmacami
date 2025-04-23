@@ -3,6 +3,11 @@ import { AfterViewInit, Component, ElementRef, HostListener, ViewChild, inject }
 import Konva from 'konva';
 import { DrawingService } from '../services/drawing.service';
 import { ChangeDetectorRef } from '@angular/core';
+import { ProyectoService } from '../../proyectos/services/proyecto.service';
+import { Proyecto } from "../../proyectos/interfaces/proyecto";
+import { routes } from '../../app.routes';
+import { ActivatedRoute } from "@angular/router";
+import { KonvaArrowAttrs, KonvaCircleAttrs, KonvaNode, KonvaRectAttrs } from "../interfaces/bloques";
 @Component({
   selector: 'app-boceto',
   templateUrl: './boceto.component.html',
@@ -10,7 +15,7 @@ import { ChangeDetectorRef } from '@angular/core';
     CommonModule
   ],
 })
-export class BocetoComponent implements AfterViewInit {
+export class BocetoComponent  {
   @ViewChild('konvaContainer') konvaContainer!: ElementRef;
   constructor(private cdr: ChangeDetectorRef) {}
   // Propiedades de Konva
@@ -30,6 +35,11 @@ export class BocetoComponent implements AfterViewInit {
   pageCount: number = 0;
   pageNames: string[] = ['Página 1'];
 
+  proyectoService= inject( ProyectoService );
+  id: string = ''; // ID del proyecto
+  route = inject(ActivatedRoute);
+  proyecto!:Proyecto;
+  roomId: string = ''; // ID de la sala
   // Colores disponibles
   colors: string[] = [
     '#EF4444', // Rojo
@@ -45,15 +55,99 @@ export class BocetoComponent implements AfterViewInit {
   // Grosores de línea disponibles
   strokeWidths: number[] = [1, 3, 5, 8];
   
-  ngAfterViewInit(): void {
-    this.initKonva();
+  ngOnInit(): void {
+    // Suscribirse a los parámetros de la ruta
+    this.route.params.subscribe(params => {
+      this.id = params['id'];
+      console.log('ID recibido:', this.id);
+      this.loadProjectData();
+    });
   }
 
-  initKonva(): void {
-    this.createNewPage();   // Crear el stage de Konva para la primera página
+  private loadProjectData(): void {
+    this.proyectoService.findById(this.id).subscribe(
+      resp => {
+        if (Array.isArray(resp) && resp.length > 0) {
+          this.proyecto = resp[0];
+          this.roomId = this.proyecto.sala;
+
+          // Guardar los datos para cargarlos después de que el view esté listo
+          if (this.proyecto.data) {
+            this.savedData = JSON.parse(this.proyecto.data);
+            console.log('Datos recibidos:', this.savedData);
+            // Inicializar Konva después de cargar los datos
+            this.initializeKonva();
+          } else {
+            console.log('No hay datos en el proyecto, creando página vacía');
+            this.initializeKonva();
+          }
+        } else {
+          console.error("El servidor devolvió un array vacío o un formato inesperado:", resp);
+          this.initializeKonva();
+        }
+      },
+      err => {
+        console.error("Error al recuperar los datos del proyecto:", err);
+        this.initializeKonva();
+      }
+    );
   }
 
-  createNewPage(): void {
+  private initializeKonva(): void {
+    if (this.savedData) {
+      console.log('Inicializando Konva con datos guardados:', this.savedData);
+      Object.keys(this.savedData).forEach(key => {
+        this.createNewPage2(this.savedData[key]);
+      });
+    } else {
+      this.createNewPage2();
+    }
+  }
+
+ 
+  private savedData: any = null;
+
+  guardar(): void {
+    // Crear un objeto para almacenar los datos de todas las páginas
+    const allPagesContent: { [key: string]: any } = {};
+  
+    // Iterar sobre los stages y exportar su contenido
+    this.stages.forEach((stage, index) => {
+      const pageKey = `page${index + 1}`;
+      
+      // Obtener todos los nodos de la capa actual
+      const layer = this.layers[index];
+      const nodes = layer.children;
+      
+      // Crear un array con los datos de cada nodo
+      const nodesData = nodes.map(node => {
+        // Excluir el transformador de los datos guardados
+        if (node instanceof Konva.Transformer) {
+          return null;
+        }
+        return node.toObject();
+      }).filter(node => node !== null);
+      
+      allPagesContent[pageKey] = nodesData;
+    });
+    const jsonData = JSON.stringify(allPagesContent);
+    console.log('Contenido de todas las páginas:', jsonData);
+    this.proyectoService.UpdateData(this.id, jsonData).subscribe(
+      (resp) => {
+        console.log('Datos guardados exitosamente:', resp);
+      },
+      (err) => {
+        console.error('Error al guardar los datos:', err);
+      }
+    );
+  }
+
+  createNewPage2(data?: string): void {
+    if (!this.konvaContainer?.nativeElement) {
+      console.error('El contenedor de Konva no está disponible');
+      return;
+    }
+
     const container = this.konvaContainer.nativeElement;
     
     // Crear un contenedor específico para esta página
@@ -73,8 +167,6 @@ export class BocetoComponent implements AfterViewInit {
 
     const layer = new Konva.Layer();
     stage.add(layer);
-
-    // Crear el transformador para redimensionar/rotar formas
     const transformer = new Konva.Transformer({
       nodes: [],
       rotateEnabled: true,
@@ -88,37 +180,84 @@ export class BocetoComponent implements AfterViewInit {
     });
     layer.add(transformer);
     
-    // Agregar a los arrays
+    /* if (typeof data !== 'string') {
+      console.error('El valor de data no es un string JSON:', data);
+      return;
+    } */
+    if (data) {
+      try {
+        const parsedData = JSON.parse(data); // Parsear el JSON
+        console.log('Datos parseados para esta página:', parsedData);
+    
+        // Verificar si parsedData es un objeto
+        if (typeof parsedData === 'object' && parsedData !== null) {
+          Object.keys(parsedData).forEach((pageKey) => {
+            const pageData = parsedData[pageKey];
+            if (Array.isArray(pageData)) {
+              console.log(`Procesando ${pageKey} con ${pageData.length} nodos...`);
+              pageData.forEach((nodeData: KonvaNode) => {
+                try {
+                  switch (nodeData.className) {
+                    case 'Rect':
+                      const rectAttrs = nodeData.attrs as KonvaRectAttrs;
+                      const rect = new Konva.Rect(rectAttrs);
+                      layer.add(rect);
+                      break;
+    
+                case 'Circle':
+                  const circleAttrs = nodeData.attrs as KonvaCircleAttrs;
+                  const circle = new Konva.Circle(circleAttrs);
+                  layer.add(circle);
+                  break;
+    
+                case 'Arrow':
+                  const arrowAttrs = nodeData.attrs as KonvaArrowAttrs;
+                  const arrow = new Konva.Arrow(arrowAttrs);
+                  layer.add(arrow);
+                  break;
+    
+                case 'Text':
+                  const textAttrs = nodeData.attrs as Konva.TextConfig;
+                  const text = new Konva.Text(textAttrs);
+                  layer.add(text);
+                  break;
+    
+                    default:
+                      console.warn('Tipo de nodo desconocido:', nodeData.className);
+                  }
+                } catch (nodeError) {
+                  console.error('Error al crear nodo individual:', nodeError);
+                }
+              });
+              layer.draw();
+            } else {
+              console.warn(`Los datos de ${pageKey} no son un array:`, pageData);
+            }
+          });
+        } else {
+          console.warn('Los datos no tienen el formato esperado (objeto con páginas):', parsedData);
+        }
+      } catch (error) {
+        console.error('Error al parsear los datos del stage:', error);
+      }
+    }
+    
     this.stages.push(stage);
     this.layers.push(layer);
     this.transformers.push(transformer);
-    
-    // Configurar los eventos del stage
     this.setupStageEvents(stage, layer, transformer);
-    
-    // Actualizar el nombre de la página
     this.pageNames.push(`Página ${this.pageCount + 1}`);
-
-    // Si es la primera página, mostrarla directamente
-    if (this.pageCount === 0) {
-      pageContainer.style.display = 'block';
-      stage.draw();
-      this.drawingService.setTransformer(transformer);
-      this.drawingService.enableDoubleClickEdit(stage);
-    } else {
-      // Si no es la primera página, cambiar a ella
-      this.currentPageIndex = this.pageCount;
-      this.showCurrentPage();
-    }
-
-    // Incrementar el contador de páginas después de la comparación
     this.pageCount++;
-    
-    // Forzar la detección de cambios después de actualizar pageCount
-    setTimeout(() => {
-      this.cdr.detectChanges();
-    });
+
+    // Mostrar la página actual
+    this.showCurrentPage();
   }
+
+
+
+  
+
+  
 
   showCurrentPage(): void {
     this.drawingService.cleanupTextarea();
@@ -371,3 +510,59 @@ export class BocetoComponent implements AfterViewInit {
     return this.drawingService.isActive(value, type, this.currentTool, this.currentColor, this.currentStrokeWidth);
   }
 }
+
+
+
+
+
+/* if (!data) {
+      console.log('Cargando datos manualmente en el lienzo...');
+    
+      // Crear un rectángulo
+      const rect = new Konva.Rect({
+        x: 50,
+        y: 50,
+        width: 100,
+        height: 100,
+        fill: 'red',
+        stroke: 'black',
+        strokeWidth: 2,
+      });
+      layer.add(rect);
+    
+      // Crear un círculo
+      const circle = new Konva.Circle({
+        x: 200,
+        y: 150,
+        radius: 50,
+        fill: 'blue',
+        stroke: 'black',
+        strokeWidth: 2,
+      });
+      layer.add(circle);
+    
+      // Crear un texto
+      const text = new Konva.Text({
+        x: 300,
+        y: 100,
+        text: 'Hola, Konva!',
+        fontSize: 24,
+        fontFamily: 'Calibri',
+        fill: 'green',
+      });
+      layer.add(text);
+    
+      // Crear una flecha
+      const arrow = new Konva.Arrow({
+        points: [400, 200, 500, 250],
+        pointerLength: 10,
+        pointerWidth: 10,
+        fill: 'yellow',
+        stroke: 'black',
+        strokeWidth: 2,
+      });
+      layer.add(arrow);
+    
+      // Dibujar la capa para reflejar los cambios
+      layer.draw();
+    } */

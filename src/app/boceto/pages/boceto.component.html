@@ -92,7 +92,7 @@
         
         <button 
           class="px-2 py-1 rounded-md bg-green-600 hover:bg-green-700 text-white text-sm ml-2"
-          (click)="createNewPage()"
+          (click)="createNewPage2()"
           title="Nueva página">
           <i class="fa fa-plus"></i>
         </button>
@@ -125,6 +125,13 @@
         </label>
         <input id="fileInput" type="file" accept="image/*" class="hidden" (change)="onFileSelected($event)" />
       </div>
+
+      <button class="px-3 py-1 rounded-md bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm mr-2"
+      (click)="guardar()" title="Limpiar lienzo">
+      <i class="fa fa-floppy-disk mr-1"></i> guardar
+    </button>
+
+
     </div>
 
     <!-- Canvas de Konva -->
