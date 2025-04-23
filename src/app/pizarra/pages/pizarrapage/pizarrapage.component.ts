@@ -11,7 +11,6 @@ import { ActivatedRoute } from '@angular/router';
 import { Proyecto } from '../../../proyectos/interfaces/proyecto';
 import { ExportarPizarraService } from '../../services/exportar_pizarra.service';
 import { PageContent } from '../../interfaces/pagecontent';
-import { PaginacionService } from '../../services/paginacion.service';
 @Component({
   selector: 'app-pizarrapage',
   imports: [CommonModule],
@@ -30,10 +29,8 @@ export class PizarrapageComponent  {
   private id!: string;
   private proyecto!: Proyecto;
   private route = inject(ActivatedRoute);
-
   private exportarpizaarraservice=inject(ExportarPizarraService);
-  private paginacionService = inject(PaginacionService);
-
+  
 
   ngOnInit(): void {
     // Suscribirse a los parámetros de la ruta
@@ -72,12 +69,16 @@ export class PizarrapageComponent  {
   
       if (this.proyecto.data) {
         try {
+          // Primer parseo: convierte el string JSON externo en un objeto
+          console.log('Datos del proyecto:', this.proyecto.data);
           const outerData = JSON.parse(this.proyecto.data);
           // Segundo parseo: convierte el string JSON interno en un objeto
           const parsedData = JSON.parse(outerData.data);
+          console.log('Datos del proyecto parseados:', parsedData);
           // Extrae los html y css
           const pages = [];
-          const pagescss = []; 
+          const pagescss = [];
+      
           for (const key in parsedData) {
             if (key.includes('_html')) {
               console.log('HTML encontrado:', key);
@@ -88,24 +89,25 @@ export class PizarrapageComponent  {
               pagescss.push(parsedData[key]);
             }
           }
-      
+          
           this.pages = pages;
           this.pagescss = pagescss;
+      
           // Cargamos la primera página si hay alguna
           if (this.pages.length > 0) {
             this.editor.setComponents(this.pages[0]);
             this.editor.setStyle(this.pagescss[0]);
-            this.paginacionService.setPages(pages);
-            this.paginacionService.setPagesCss(pagescss);
-            this.paginacionService.setEditor(this.editor);
-  
           }
+      
           //console.log('Páginas cargadas:', this.pages);
         } catch (error) {
           console.error('Error al parsear los datos del proyecto:', error);
         }
       }
+      
+  
       this.initializeSocketConnection();
+  
       const debouncedSendEditorState = this.debounce(() => {
         this.sendEditorState();
       }, 2000);
@@ -117,11 +119,9 @@ export class PizarrapageComponent  {
       this.editor.on('change:changesCount', () => {
         debouncedSendEditorState();
       });
+  
       this.botonguardar();
-      this.botonExportar();
-    
-      this.paginacionService.updatePagination(      );
-      //this.updatePagination();
+      this.updatePagination();
       addFormsBlocks(this.editor);
       addCrudsBlocks(this.editor);
       addComponentesBlocks(this.editor);
@@ -131,35 +131,53 @@ export class PizarrapageComponent  {
   }
 
 
-  private botonguardar(){
+  private botonguardar() {
     this.editor.Panels.addButton('options', {
       id: 'mi-boton-personalizado',
       className: 'fa fa-floppy-disk', // Puedes usar iconos de Font Awesome
       command: 'mi-comando', // El identificador del comando que se ejecutará
       attributes: { title: 'guardar' },
-      active: false
+      active: false,
     });
+  
     this.editor.Commands.add('mi-comando', {
-      run: function(editor:any, sender:any) {
-        miFuncionPersonalizada();
-      }
+      run: (editor: any, sender: any) => {
+        this.miFuncionPersonalizada();
+      },
     });
-    const miFuncionPersonalizada = () => {
-      // Implementa aquí la lógica que deseas ejecutar
-      const allPagesContent = this.pages.map((page, index) => {
-        const html = this.editor.getHtml(); // Obtiene el HTML actual del editor
-        const css = this.editor.getCss();  // Obtiene el CSS actual del editor
-        return { [`page${index + 1}_html`]: html, [`page${index + 1}_css`]: css };
-      });
-    
-      // Convierte el contenido a un JSON string
-      const jsonData = JSON.stringify(
-        allPagesContent.reduce((acc, pageContent) => ({ ...acc, ...pageContent }), {})
-      );
-      console.log('Contenido de todas las páginas como JSON:', jsonData);
-      console.log(this.id, 'esta el id en esta parte?');  
-    };
+  }
+  
+  private miFuncionPersonalizada() {
+    // Asegúrate de guardar el contenido actual de la página activa antes de procesar todas las páginas
+    this.saveCurrentPage();
+  
+    // Construir el contenido de todas las páginas
+    const allPagesContent = this.pages.map((page, index) => {
+      const html = this.pages[index]; // Obtener el HTML almacenado de la página
+      const css = this.pagescss[index]; // Obtener el CSS almacenado de la página
+      return { [`page${index + 1}_html`]: html, [`page${index + 1}_css`]: css };
+    });
+  
+    // Convierte el contenido a un JSON string
+    const jsonData = JSON.stringify(
+      allPagesContent.reduce((acc, pageContent) => ({ ...acc, ...pageContent }), {})
+    );
+  
+    // Enviar los datos al servidor
+    this.proyectoService.UpdateData(this.id, jsonData).subscribe(
+      (resp) => {
+        console.log('Respuesta del servidor en UpdateData:', resp);
+      },
+      (err) => {
+        console.error('Error al enviar los datos al servidor:', err);
+      }
+    );
   } 
+
+
+
+
+  
 
 
   private botonExportar(){
@@ -242,5 +260,85 @@ export class PizarrapageComponent  {
       timeout = setTimeout(() => func(...args), wait);
     };
   }
+
+
+ 
+
+  private updatePagination(): void {
+    const paginationPanel = document.getElementById('pagination-panel');
+    if (!paginationPanel) return;
+
+    paginationPanel.innerHTML = `
+    <button id="prev-page" title="Página Anterior"><i class="fa fa-chevron-left"></i></button>
+    <span>Página ${this.currentPage + 1} de ${this.pages.length}</span>
+    <button id="next-page" title="Página Siguiente"><i class="fa fa-chevron-right"></i></button>
+    <button id="add-page" title="Nueva Página"><i class="fa fa-plus"></i></button>
+  `;
+
+    const prevBtn = document.getElementById('prev-page') as HTMLButtonElement;
+    const nextBtn = document.getElementById('next-page') as HTMLButtonElement;
+    const addBtn = document.getElementById('add-page') as HTMLButtonElement;
+
+    prevBtn.disabled = this.currentPage === 0;
+    nextBtn.disabled = this.currentPage === this.pages.length - 1;
+
+    prevBtn.onclick = () => {
+      if (this.currentPage > 0) {
+        //this.pages[this.currentPage] = this.editor.getHtml();
+        this.saveCurrentPage();
+        this.currentPage--;
+        // this.editor.setComponents(this.pages[this.currentPage]);
+        this.loadPage(this.currentPage); // Carga la página anterior
+        //this.editor
+        this.updatePagination();
+      }
+    };
+
+    nextBtn.onclick = () => {
+      if (this.currentPage < this.pages.length - 1) {
+        // this.pages[this.currentPage] = this.editor.getHtml();
+        this.saveCurrentPage();
+        this.currentPage++;
+        // this.editor.setComponents(this.pages[this.currentPage]);
+        this.loadPage(this.currentPage); // Carga la página siguiente
+        this.updatePagination();
+      }
+    };
+
+    addBtn.onclick = () => {
+
+      // this.pages[this.currentPage] = this.editor.getHtml();
+      this.saveCurrentPage();
+      this.pages.push('<p>Nueva Página</p>');
+      this.currentPage = this.pages.length - 1;
+      //this.editor.setComponents(this.pages[this.currentPage]);
+      this.loadPage(this.currentPage); // Carga la nueva página
+      this.updatePagination();
+    };
+  }
+
+  private saveCurrentPage(): void {
+    this.pages[this.currentPage] = this.editor.getHtml();
+    this.pagescss[this.currentPage] = this.editor.getCss();
+  }
+
+
+  private loadPage(pageIndex: number): void {
+    const page = this.pages[pageIndex];
+    if (page) {
+      const estilosycss = {
+        styles: this.pagescss[pageIndex],
+        components: this.pages[pageIndex]
+      }
+      this.editor.setComponents(estilosycss)
+    }
+  }
+
+
+
+
+
+
+
 }
 
