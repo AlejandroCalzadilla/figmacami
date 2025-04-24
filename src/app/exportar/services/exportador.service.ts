@@ -16,7 +16,6 @@ import { appComponentHtml } from "./archivos_angular/src_app_appComponentHtml";
 import { environmentTs } from "./archivos_angular/src_enviroments_enviroment";
 import { appComponentTs } from "./archivos_angular/src_app_appComponentTs";
 import { appConfigTs } from "./archivos_angular/src_app_appConfig";
-import { addRouteToAppRoutesTs, appRoutesTs } from "./archivos_angular/src_app_routes";
 import { GeneratedComponent } from "../../pizarra/interfaces/componente_angular";
 import { NgOptimizedImage } from "@angular/common";
 
@@ -30,24 +29,46 @@ export class ExportadorService {
   //para llamar a aumentar rutas 
   //private a=addRouteToAppRoutesTs("sdasd","adsds");
 
-  async generateProjectWithSidebar(componentes :GeneratedComponent[]) {
+  appRoutesTs = `
+  import { Routes } from '@angular/router';
+
+export const routes: Routes = [];
+
+`
+
+addRouteToAppRoutesTs(ruta: string, path: string, component: string, ruta_componente: string): string {
+  // Crear el import para el componente
+  const newImport = `import { ${component} } from '${ruta_componente}';`;
+
+  // Crear la nueva ruta
+  const newRoute = `  { path: '${path}', component: ${component} },`;
+
+  // Verificar si el import ya existe para evitar duplicados
+  if (!ruta.includes(newImport)) {
+    ruta = `${newImport}\n${ruta}`;
+  }
+
+  const updatedRoutes = ruta.replace(
+    'export const routes: Routes = [',
+    `export const routes: Routes = [\n${newRoute}`
+  );
+
+  return updatedRoutes; 
+}
+
+  async generateProject(componentes :GeneratedComponent[]) {
     try {
       const zip = new JSZip();
       // Crear la estructura básica del proyecto Angular
-      this.createBasicAngularStructure(zip);
-    
+      this.createBasicAngularStructure(zip);  
       // Iterar sobre los componentes generados y agregar sus archivos
       componentes.forEach((componente) => {
-      
       //carpeta base 
       const componentBaseFolder = zip.folder(`src/app/${componente.nombre}`);
        if (!componentBaseFolder) {
         throw new Error('No se pudo crear la carpeta base del componente');
       }  
     
-
-
-
       // Crear una carpeta page para el componente
       const componentPagesFolder = componentBaseFolder.folder('pages');
       if (!componentPagesFolder) {
@@ -65,9 +86,6 @@ export class ExportadorService {
       componentPageFolder.file(componente.nombre_archivo_html, componente.html);
       componentPageFolder.file(componente.nombre_archivo_css, componente.css);
       }
-
-
-
 
       //carpeta components 
       const componentComponentsFolder = componentBaseFolder.folder('components');
@@ -94,51 +112,22 @@ export class ExportadorService {
         return;
       }
       componentServiceFolder.file(componente.nombre_archivo_service, componente.service);
-      
-
-
-
       //carpeta interfaces
       const componentInterfacesFolder = componentBaseFolder.folder(`interfaces`);
       if (!componentInterfacesFolder) {
         console.warn(`No se pudo crear la carpeta interfaces  para el componente: ${componente.nombre}`);
         return;
       }
-
-       componentInterfacesFolder.file(componente.nombre_archivo_service, componente.service);     
+       if(componente.interface!==undefined && componente.nombre_archivo_interface!==undefined){
+       componentInterfacesFolder.file(componente.nombre_archivo_interface!, componente.interface);     
        console.log(`Archivos del componente ${componente.nombre} añadidos al ZIP.`);
-   
-       addRouteToAppRoutesTs(componente.nombre,componente.nombreClaseComponent); 
-  
-      }); 
-
-
-
-     
-
-
-
-
-
-
-
-
-      // Agregar el componente Sidebar al proyecto
-      //const componentFolder = zip.folder(`src/app/components/sidebar`);
-      /* const componentFolder = zip.folder(url);
-
-      // Archivo TypeScript
-     // componentFolder?.file('sidebar.component.ts', sidebarTs);
-        componentFolder?.file(`${componente_ts.nombre}.component.ts`, componente_ts.contenido);
-
+      }
+      this.appRoutesTs = this.addRouteToAppRoutesTs(this.appRoutesTs, componente.ruta.path, componente.nombreClaseComponent,componente.ruta_componente);
       
-      // Archivo HTML
-      componentFolder?.file(`${componente_ts.nombre}.component.html`, componente_html.contenido);
+    }); 
 
-      // Archivo CSS    
-      componentFolder?.file(`${componente_ts.nombre}.component.css`, componente_css.contenido);
-
-      addRouteToAppRoutesTs(componente_ts.nombre,componente_ts.nombreClase); */
+       console.log(this.appRoutesTs, "rutas")
+      zip.file('src/app/app.routes.ts', this.appRoutesTs); // Aquí se agrega la ruta al archivo app.routes.ts
       
       // Generar el archivo ZIP
       const content = await zip.generateAsync({ type: 'blob' });
@@ -153,12 +142,15 @@ export class ExportadorService {
     }
   }
 
+  
+
+
   // Función para crear la estructura básica de un proyecto Angular
   private createBasicAngularStructure(zip: JSZip) {
     // Crear la estructura de carpetas
     zip.folder('src');
     zip.folder('src/app');
-    zip.folder('src/app/components');
+    //zip.folder('src/app/components');
     zip.folder('src/assets');
     zip.folder('src/environments');
 
@@ -179,7 +171,7 @@ export class ExportadorService {
     zip.file('src/app/app.config.ts',appConfigTs)
     
     // Archivo routes.ts
-    zip.file('src/app/app.routes.ts', appRoutesTs); // Aquí se agrega la ruta al archivo app.routes.ts
+    //zip.file('src/app/app.routes.ts', appRoutesTs); // Aquí se agrega la ruta al archivo app.routes.ts
 
     
     // Archivo main.ts
@@ -219,3 +211,26 @@ export class ExportadorService {
 // Ejemplo de uso
 
 }
+
+
+
+
+
+
+ // Agregar el componente Sidebar al proyecto
+      //const componentFolder = zip.folder(`src/app/components/sidebar`);
+      /* const componentFolder = zip.folder(url);
+
+      // Archivo TypeScript
+     // componentFolder?.file('sidebar.component.ts', sidebarTs);
+        componentFolder?.file(`${componente_ts.nombre}.component.ts`, componente_ts.contenido);
+
+      
+      // Archivo HTML
+      componentFolder?.file(`${componente_ts.nombre}.component.html`, componente_html.contenido);
+
+      // Archivo CSS    
+      componentFolder?.file(`${componente_ts.nombre}.component.css`, componente_css.contenido);
+
+      addRouteToAppRoutesTs(componente_ts.nombre,componente_ts.nombreClase); */
+      

@@ -35,9 +35,13 @@
                             <td class="px-4 py-3">{{proyecto.created }}</td>
                             <td class="px-4 py-3">{{proyecto.updated }}</td>
                             <td class="px-4 py-3">{{proyecto.tipo }}</td>
-                           <td class="px-4 py-3">
-                            <button type="button" (click)="dibujar(proyecto)" class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                           <td class="  flex  px-4 py-3">
+                          
+                            <button type="button" (click)="dibujar(proyecto)" class="m-1 inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                                 dibujar
+                            </button>
+                            <button type="button" (click)="delete(proyecto)" class="m-1 inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-red-500 rounded-lg ">
+                                eliminar
                             </button>
                            </td>
                             <td class="px-4 py-3 flex items-center justify-end">

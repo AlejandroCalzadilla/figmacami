@@ -53,6 +53,13 @@ export default class ProyectoComponent {
         this.route.navigate(['/createproyecto']);
     }
 
+    delete(proyecto: Proyecto): void {
+        this.ProyectoService.delete(proyecto.id!).subscribe(() => {
+            this.proyectos = this.proyectos.filter(p => p.id !== proyecto.id);
+            console.log("Proyecto eliminado:", proyecto.id);
+        });
+    }
+
 
 
 }

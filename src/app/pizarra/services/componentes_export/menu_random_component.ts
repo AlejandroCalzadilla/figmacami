@@ -23,17 +23,17 @@ export function generateMenuComponent(): GeneratedComponent {
 
 
 
-
+ const links: string[] = [];
 
 
   const html = `
-    <nav class="menu">
-      <ul>
-        <li *ngFor="let link of links">
-          <a [routerLink]="link">{{ link }}</a>
-        </li>
-      </ul>
-    </nav>
+   <nav class="menu">
+  <ul>
+    <li *ngFor="let link of link">
+      <a class="links" [routerLink]="link">{{ link }}</a>
+    </li>
+  </ul>
+</nav>
   `;
 
   const css = `
@@ -56,25 +56,34 @@ export function generateMenuComponent(): GeneratedComponent {
     .menu a:hover {
       text-decoration: underline;
     }
+      .links{
+      margin: 10px;
+    }
   `;
 
   const ts = `
-    import { Component } from '@angular/core';
+   
+    import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
     import { RouterModule } from '@angular/router';
 
     @Component({
-      selector: 'app-${nombre}',
-      imports: [RouterModule],
-      templateUrl: './${nombre}.component.html',
-      styleUrls: ['./${nombre}.component.css']
+      selector: 'app-menurandom',
+      imports: [RouterModule,CommonModule],
+      templateUrl: './menurandom.component.html',
+      styleUrls: ['./menurandom.component.css']
     })
-    export class ${nombreClase} {
-      links: string[] = [];
+    export class MenuRandomComponent {
+      link: string[] = [
+       "randomPage1",
+       "randomPage2",
+      "randomPage3"
+      ];
 
       constructor() {}
 
       setLinks(newLinks: string[]): void {
-        this.links = newLinks;
+        this.link = newLinks;
       }
     }
   `;
@@ -94,6 +103,8 @@ export function generateMenuComponent(): GeneratedComponent {
     path: '',
     component: nombreClase,
   };
+
+  const rutacomponente= `./${nombre}/pages/${nombre}page/${nombre}.component`;
  const componente=false;
   return {
     html,
@@ -109,6 +120,8 @@ export function generateMenuComponent(): GeneratedComponent {
     nombre_archivo_css: nombre_archivo_css,
     nombre_archivo_html: nombre_archivo_html,
     componente:componente,
+    links,
+    ruta_componente:rutacomponente,
      
   };
 }

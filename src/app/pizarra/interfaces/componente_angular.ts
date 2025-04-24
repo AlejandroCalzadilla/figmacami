@@ -16,5 +16,7 @@ export interface GeneratedComponent {
     nombre_archivo_service:string;
     nombre_archivo_interface?:string;
     componente:boolean
+
+    ruta_componente:string;
      
   }

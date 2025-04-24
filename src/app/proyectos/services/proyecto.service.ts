@@ -52,7 +52,14 @@ private readonly baseUrl: string = environment.baseUrl;
     return this.http.patch<Proyecto>(url, body, { headers });
   }
 
+  delete( id: string ): Observable<void> {
+    const url  = `${ this.baseUrl }/api/proyecto/${ id }`;
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders()
+      .set('Authorization', `Bearer ${ token }`);
+    return this.http.delete<void>( url, {headers} );
 
+  }
 
 
 }

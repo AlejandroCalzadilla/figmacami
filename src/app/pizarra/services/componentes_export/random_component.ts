@@ -60,6 +60,7 @@ import { GeneratedComponent } from '../../interfaces/componente_angular';
       }
 
     const componente=false;
+    const ruta_componente=`./${nombre}/pages/${nombre}page/${nombre}.component`;
     return {
       html,
       css,
@@ -74,5 +75,6 @@ import { GeneratedComponent } from '../../interfaces/componente_angular';
       nombre_Clase_Service:nombre_Clase_Service,
       nombre_archivo_service:nombre_archivo_service,
       componente:componente,
+      ruta_componente:ruta_componente,
     };
   }

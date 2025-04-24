@@ -211,7 +211,7 @@ export class PizarrapageComponent  {
   }
 
   private prueba(contenido:PageContent[], totalPages: number){
-     this.exportarpizaarraservice.contenido(contenido, totalPages);
+     this.exportarpizaarraservice.contenidot(contenido, totalPages);
   }
 
 
