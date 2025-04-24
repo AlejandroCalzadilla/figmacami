@@ -40,7 +40,7 @@ export function addCrudsBlocks(editor:any){
               <label for="message" style="display: block; margin-bottom: 5px;">Mensaje:</label>
               <textarea id="message" name="message" rows="4" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"></textarea>
             </div>
-          <button  disabled type="submit" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;" contenteditable="false"> Crear</button>
+          <button  id="crear" type="submit" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;" contenteditable="false"> Crear</button>
             </form>
         `,
         attributes: { class: 'fa fa-wpforms' }
@@ -90,7 +90,7 @@ export function addCrudsBlocks(editor:any){
               <label for="message" style="display: block; margin-bottom: 5px;">Mensaje:</label>
               <textarea id="message" name="message" rows="4" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"></textarea>
             </div>
-           <button disabled type="submit" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;" contenteditable="false"> editar</button>
+           <button  id="editar" type="submit" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;" contenteditable="false"> editar</button>
           </form>
         `,
         attributes: { class: 'fa fa-wpforms' }
@@ -104,7 +104,7 @@ export function addCrudsBlocks(editor:any){
         content: `
           <div style="padding: 20px; border: 1px solid #ccc; background-color: #f9f9f9;">
             <h3 style="margin-bottom: 15px;">Registros</h3>
-            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <table id="vistaregistro" style="width: 100%; border-collapse: collapse; text-align: left;">
               <thead>
                 <tr style="background-color: #f2f2f2;">
                   <th style="padding: 10px; border: 1px solid #ccc;">Nombre</th>
@@ -136,9 +136,9 @@ export function addCrudsBlocks(editor:any){
                   <td style="padding: 10px; border: 1px solid #ccc;">Recibir actualizaciones</td>
                   <td style="padding: 10px; border: 1px solid #ccc;">Casado</td>
                   <td style="padding: 10px; border: 1px solid #ccc ;display: flex; gap: 5px; ">
-                    <button style="padding: 5px 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Editar</button>
-                    <button style="padding: 5px 10px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Eliminar</button>
-                    <button style="padding: 5px 10px; background-color: green; color: white; border: none; border-radius: 4px; cursor: pointer;">Ver</button>
+                    <button style="padding: 5px 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">editar</button>
+                    <button style="padding: 5px 10px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">eliminar</button>
+                    <button style="padding: 5px 10px; background-color: green; color: white; border: none; border-radius: 4px; cursor: pointer;">ver</button>
                   
                     </td>
                 </tr>
@@ -152,7 +152,7 @@ export function addCrudsBlocks(editor:any){
         label: 'View Record',
         category: 'Cruds',
         content: `
-          <div style="padding: 20px; border: 1px solid #ccc; background-color: #f9f9f9; max-width: 100%; max-height:100% margin: 0 auto;">
+          <div  id="vistaregistro" style="padding: 20px; border: 1px solid #ccc; background-color: #f9f9f9; max-width: 100%; max-height:100% margin: 0 auto;">
             <h3 style="margin-bottom: 15px; text-align: center;">Detalles del Registro</h3>
             <div style="margin-bottom: 10px;">
               <strong>Nombre:</strong>

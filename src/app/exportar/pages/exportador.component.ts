@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ExportadorAngularService } from '../services/exportador_form.service';
+import { ExportadorAngularService } from '../../pizarra/services/exportador_form_create_edit.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
