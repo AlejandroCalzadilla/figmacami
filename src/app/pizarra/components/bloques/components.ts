@@ -154,7 +154,7 @@ export function addComponentesBlocks(editor:any){
 
 
 
-      editor.BlockManager.add('custom-navar', {
+      editor.BlockManager.add('custom-navbar', {
         label: 'Navbar',
         content: `
           <nav style="background-color: #333; color: white; padding: 10px;">
@@ -174,7 +174,7 @@ export function addComponentesBlocks(editor:any){
         attributes: { class: 'fa fa-header' }
       });
 
-      editor.BlockManager.add('custom-sidebar', {
+      editor.BlockManager.add('custom-aside', {
         label: 'Sidebar',
         category: 'Componentes',
         content: `

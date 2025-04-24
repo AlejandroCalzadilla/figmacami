@@ -121,6 +121,7 @@ export class PizarrapageComponent  {
       });
   
       this.botonguardar();
+      this.botonExportar();
       this.updatePagination();
       addFormsBlocks(this.editor);
       addCrudsBlocks(this.editor);
@@ -215,6 +216,15 @@ export class PizarrapageComponent  {
 
 
 
+
+
+
+
+
+
+
+  /* sockets ---------*/
+
   private initializeSocketConnection(): void {
     this.socket = io('http://localhost:3000'); // Cambia la URL según tu servidor
     //this.socket.emit('join-room', this.roomId);
@@ -260,9 +270,20 @@ export class PizarrapageComponent  {
       timeout = setTimeout(() => func(...args), wait);
     };
   }
+/* sockets----------------------------- */
 
 
- 
+  
+
+
+
+
+
+
+
+
+
+  /* paginado */
 
   private updatePagination(): void {
     const paginationPanel = document.getElementById('pagination-panel');

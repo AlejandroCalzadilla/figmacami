@@ -17,12 +17,8 @@ import { environmentTs } from "./archivos_angular/src_enviroments_enviroment";
 import { appComponentTs } from "./archivos_angular/src_app_appComponentTs";
 import { appConfigTs } from "./archivos_angular/src_app_appConfig";
 import { addRouteToAppRoutesTs, appRoutesTs } from "./archivos_angular/src_app_routes";
-import { sidebarTs } from "./commponente/component_ts";
-import { sidebarHtml } from "./commponente/component_html";
-import { sidebarCss } from "./commponente/component_style";
-import { ComponenteTs } from "../interfaces/componente_ts";
-import { ComponenteHtml } from "../interfaces/componente_html";
-import { ComponenteCss } from "../interfaces/componente_css";
+import { GeneratedComponent } from "../../pizarra/interfaces/componente_angular";
+import { NgOptimizedImage } from "@angular/common";
 
 @Injectable({
   providedIn: 'root'
@@ -34,16 +30,102 @@ export class ExportadorService {
   //para llamar a aumentar rutas 
   //private a=addRouteToAppRoutesTs("sdasd","adsds");
 
-  async generateProjectWithSidebar(url:string ,componente_ts:ComponenteTs, componente_html:ComponenteHtml, componente_css:ComponenteCss) {
+  async generateProjectWithSidebar(componentes :GeneratedComponent[]) {
     try {
       const zip = new JSZip();
-
       // Crear la estructura básica del proyecto Angular
       this.createBasicAngularStructure(zip);
+    
+      // Iterar sobre los componentes generados y agregar sus archivos
+      componentes.forEach((componente) => {
+      
+      //carpeta base 
+      const componentBaseFolder = zip.folder(`src/app/${componente.nombre}`);
+       if (!componentBaseFolder) {
+        throw new Error('No se pudo crear la carpeta base del componente');
+      }  
+    
+
+
+
+      // Crear una carpeta page para el componente
+      const componentPagesFolder = componentBaseFolder.folder('pages');
+      if (!componentPagesFolder) {
+        console.warn(`No se pudo crear la carpeta page  para el componente: ${componente.nombre}`);
+        return;
+      
+      }      
+      if(componente.componente==false){
+      const componentPageFolder = componentPagesFolder.folder(`${componente.nombre}page` );
+      if (!componentPageFolder) {
+        console.warn(`No se pudo crear la carpeta page  para el componente: ${componente.nombre}`);
+        return;
+      } 
+      componentPageFolder.file(componente.nombre_archivo_ts, componente.ts);
+      componentPageFolder.file(componente.nombre_archivo_html, componente.html);
+      componentPageFolder.file(componente.nombre_archivo_css, componente.css);
+      }
+
+
+
+
+      //carpeta components 
+      const componentComponentsFolder = componentBaseFolder.folder('components');
+      if (!componentComponentsFolder) {
+        console.warn(`No se pudo crear la carpeta page  para el componente: ${componente.nombre}`);
+        return;
+      }
+      if(componente.componente==true){
+      const componentComponentFolder = componentComponentsFolder.folder(componente.nombre);
+      if (!componentComponentFolder) {
+        console.warn(`No se pudo crear la carpeta page  para el componente: ${componente.nombre}`);
+        return;
+      }
+
+       componentComponentFolder.file(componente.nombre_archivo_ts, componente.ts);
+       componentComponentFolder.file(componente.nombre_archivo_html, componente.html);
+       componentComponentFolder.file(componente.nombre_archivo_css, componente.css);
+      }
+
+      //carpeta services 
+      const componentServiceFolder = componentBaseFolder.folder(`services`);
+      if (!componentServiceFolder) {
+        console.warn(`No se pudo crear la carpeta sevice  para el componente: ${componente.nombre}`);
+        return;
+      }
+      componentServiceFolder.file(componente.nombre_archivo_service, componente.service);
+      
+
+
+
+      //carpeta interfaces
+      const componentInterfacesFolder = componentBaseFolder.folder(`interfaces`);
+      if (!componentInterfacesFolder) {
+        console.warn(`No se pudo crear la carpeta interfaces  para el componente: ${componente.nombre}`);
+        return;
+      }
+
+       componentInterfacesFolder.file(componente.nombre_archivo_service, componente.service);     
+       console.log(`Archivos del componente ${componente.nombre} añadidos al ZIP.`);
+   
+       addRouteToAppRoutesTs(componente.nombre,componente.nombreClaseComponent); 
+  
+      }); 
+
+
+
+     
+
+
+
+
+
+
+
 
       // Agregar el componente Sidebar al proyecto
       //const componentFolder = zip.folder(`src/app/components/sidebar`);
-      const componentFolder = zip.folder(url);
+      /* const componentFolder = zip.folder(url);
 
       // Archivo TypeScript
      // componentFolder?.file('sidebar.component.ts', sidebarTs);
@@ -56,7 +138,7 @@ export class ExportadorService {
       // Archivo CSS    
       componentFolder?.file(`${componente_ts.nombre}.component.css`, componente_css.contenido);
 
-      addRouteToAppRoutesTs(componente_ts.nombre,componente_ts.nombreClase);
+      addRouteToAppRoutesTs(componente_ts.nombre,componente_ts.nombreClase); */
       
       // Generar el archivo ZIP
       const content = await zip.generateAsync({ type: 'blob' });
