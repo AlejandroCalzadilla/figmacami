@@ -126,7 +126,7 @@ addRouteToAppRoutesTs(ruta: string, path: string, component: string, ruta_compon
       
     }); 
 
-       console.log(this.appRoutesTs, "rutas")
+       //console.log(this.appRoutesTs, "rutas")
       zip.file('src/app/app.routes.ts', this.appRoutesTs); // Aquí se agrega la ruta al archivo app.routes.ts
       
       // Generar el archivo ZIP

@@ -123,11 +123,11 @@ export function addCrudsBlocks(editor:any){
                   <td style="padding: 10px; border: 1px solid #ccc;">Recibir noticias</td>
                   <td style="padding: 10px; border: 1px solid #ccc;">Soltero</td>
                   <td style="padding: 10px; border: 1px solid #ccc; display: flex; gap: 5px;">
-                    <button style="padding: 5px 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Editar</button>
-                    <button style="padding: 5px 10px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Eliminar</button>
-                       <button style="padding: 5px 10px; background-color: green; color: white; border: none; border-radius: 4px; cursor: pointer;">Ver</button>
-                 
-                    </td>
+                     <button style="padding: 5px 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">ver</button>
+                    <button style="padding: 5px 10px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">editar</button>
+                    <button style="padding: 5px 10px; background-color: green; color: white; border: none; border-radius: 4px; cursor: pointer;">eliminar</button>
+                  
+                   </td>
                 </tr>
                 <tr>
                   <td style="padding: 10px; border: 1px solid #ccc;">Ana López</td>
@@ -181,7 +181,7 @@ export function addCrudsBlocks(editor:any){
               <strong>Mensaje:</strong>
               <p style="margin-top: 5px;">Este es un mensaje de ejemplo.</p>
             </div>
-            <button style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Volver</button>
+            <button style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">volver</button>
           </div>
         `,
         attributes: { class: 'fa fa-eye' }

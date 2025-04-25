@@ -1,8 +1,8 @@
 export interface Crud {
-  formCreate: HTMLElement | null;
-  formEdit: HTMLElement | null;
-  showRegister: HTMLElement | null;
-  indexTable: HTMLElement | null;
+  formCreate: { html: string; css: string } | null;
+  formEdit: { html: string; css: string } | null;
+  showRegister: { html: string; css: string } | null;
+  indexTable: { html: string; css: string } | null;
   pageNumber: number;
 }
 

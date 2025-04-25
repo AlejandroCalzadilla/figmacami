@@ -70,11 +70,11 @@ export class PizarrapageComponent  {
       if (this.proyecto.data) {
         try {
           // Primer parseo: convierte el string JSON externo en un objeto
-          console.log('Datos del proyecto:', this.proyecto.data);
+         // console.log('Datos del proyecto:', this.proyecto.data);
           const outerData = JSON.parse(this.proyecto.data);
           // Segundo parseo: convierte el string JSON interno en un objeto
           const parsedData = JSON.parse(outerData.data);
-          console.log('Datos del proyecto parseados:', parsedData);
+          //console.log('Datos del proyecto parseados:', parsedData);
           // Extrae los html y css
           const pages = [];
           const pagescss = [];
@@ -167,10 +167,10 @@ export class PizarrapageComponent  {
     // Enviar los datos al servidor
     this.proyectoService.UpdateData(this.id, jsonData).subscribe(
       (resp) => {
-        console.log('Respuesta del servidor en UpdateData:', resp);
+        //console.log('Respuesta del servidor en UpdateData:', resp);
       },
       (err) => {
-        console.error('Error al enviar los datos al servidor:', err);
+        //console.error('Error al enviar los datos al servidor:', err);
       }
     );
   } 
@@ -181,33 +181,37 @@ export class PizarrapageComponent  {
   
 
 
-  private botonExportar(){
-   
+  private botonExportar() {
     this.editor.Panels.addButton('options', {
       id: 'mi-boton-exportar',
-      className: 'fa-brands fa-angular', 
-      command: 'mi-exportar', 
+      className: 'fa-brands fa-angular',
+      command: 'mi-exportar',
       attributes: { title: 'exportar' },
-      active: false
+      active: false,
     });
+  
     this.editor.Commands.add('mi-exportar', {
-      run: function(editor:any, sender:any) {
-        miFuncionPersonalizada();
-
-      }
-    });    
-    const miFuncionPersonalizada = () => { 
-      const totalPages= this.pages.length;
-      const allPagesContent: PageContent[] = this.pages.map((page, index) => {
-        const html = this.editor.getHtml(); // Obtiene el HTML actual del editor
-        const css = this.editor.getCss();  // Obtiene el CSS actual del editor
-        return { html, css }; // Devuelve un objeto que cumple con la interfaz PageContent
-      });
-      console.log('Contenido de todas las páginas como JSON:', allPagesContent);   
-      this.prueba(allPagesContent,totalPages);
-      };
-
-
+      run: (editor: any, sender: any) => {
+        this.miFuncionPersonalizada2();
+      },
+    });
+  }
+  
+  private miFuncionPersonalizada2() {
+    const totalPages = this.pages.length;
+    const allPagesContent: PageContent[] = [];
+  
+    for (let i = 0; i < totalPages; i++) {
+      // Obtener el contenido directamente de las páginas almacenadas
+      const html = this.pages[i];
+      const css = this.pagescss[i];
+  
+      // Agregar el contenido al array
+      allPagesContent.push({ html, css });
+    }
+  
+    console.log('Contenido de todas las páginas como JSON:', allPagesContent);
+    this.prueba(allPagesContent, totalPages);
   }
 
   private prueba(contenido:PageContent[], totalPages: number){
