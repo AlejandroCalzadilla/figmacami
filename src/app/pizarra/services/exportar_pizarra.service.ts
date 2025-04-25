@@ -6,6 +6,7 @@ import { addLinksToMenu, assignLinksToMenuComponent } from './componentes_export
 import { ExportadorService } from '../../exportar/services/exportador.service';
 import { GeneratedComponent } from '../interfaces/componente_angular';
 import { CrudValidado } from '../interfaces/crud.interface';
+import { ExportadorCrudService } from './exportador_crud.service';
 
 interface Crud {
   formCreate: { html: string; css: string } | null;
@@ -20,7 +21,7 @@ interface Crud {
 })
 export class ExportarPizarraService {
   private exportadorangular = inject(ExportadorService);
-  
+  private exportadorCrud = inject(ExportadorCrudService);
   // Contadores de componentes por tipo
   formcreate: { count: number; pages: number[] } = { count: 0, pages: [] };
   formedit: { count: number; pages: number[] } = { count: 0, pages: [] };
@@ -31,7 +32,7 @@ export class ExportarPizarraService {
   pagina_nomal: { count: number; pages: number[] } = { count: 0, pages: [] };
 
   contenidot(contenido: PageContent[], totalpages: number): void {
-    console.log('Contenido recibido:', contenido);
+    //console.log('Contenido recibido:', contenido);
 
     // Procesar cada página
     for (let i = 0; i < totalpages; i++) {
@@ -77,19 +78,23 @@ export class ExportarPizarraService {
       if(this.formcreate.count > 0 && this.formedit.count > 0 && this.showregister.count > 0 && this.index_o_table.count > 0){
         const cruds = this.agruparYValidarCruds(contenido);
         console.log('CRUDs encontrados', cruds);  
+        const componentescrud=this.procesarCruds(cruds);
+        //console.log('componentes crud', componentescrud);
+        componentes.push(...componentescrud);
       }
     }
 
-    //this.exportarComponentes(componentes);
+    this.exportarComponentes(componentes);
   }
 
-  private procesarCruds(cruds: CrudValidado[]): void {
-    const componentes: GeneratedComponent[] = [];
+  private procesarCruds(cruds: CrudValidado[]) : GeneratedComponent[] {
+    let componentes: GeneratedComponent[] = [];
     cruds.forEach((crud, index) => {
-      // Aquí puedes procesar cada CRUD y generar los componentes necesarios
-      console.log('Procesando CRUD:', crud);
+       console.log('Procesando CRUD:', crud);
+        componentes=this.exportadorCrud.generarComponentesCrud(crud);
+      //const componente = generateCrudComponent(crud);
     });
-    this.exportarComponentes(componentes);
+    return componentes;
   }
 
   private exportarComponentes(componentes: GeneratedComponent[]): void {
@@ -171,7 +176,7 @@ export class ExportarPizarraService {
       return null;
     }
 
-    console.log('form create encontrado', pageNumber);
+   // console.log('form create encontrado', pageNumber);
     return { html: doc.body.innerHTML, css };
   }
 
@@ -188,7 +193,7 @@ export class ExportarPizarraService {
       return null;
     }
 
-    console.log('form edit encontrado', pageNumber);
+    //console.log('form edit encontrado', pageNumber);
     return { html: doc.body.innerHTML, css };
   }
 
@@ -205,7 +210,7 @@ export class ExportarPizarraService {
       return null;
     }
 
-    console.log('Vista REGISTRO encontrada en la página', pageNumber);
+    //console.log('Vista REGISTRO encontrada en la página', pageNumber);
     return { html: doc.body.innerHTML, css };
   }
 
@@ -232,7 +237,7 @@ export class ExportarPizarraService {
       return null;
     }
 
-    console.log('Vista de registros encontrada en la página', pageNumber);
+    //console.log('Vista de registros encontrada en la página', pageNumber);
     return { html: doc.body.innerHTML, css };
   }
 
@@ -317,7 +322,7 @@ export class ExportarPizarraService {
     if (!isPageCategorized) {
       this.pagina_nomal.count++;
       this.pagina_nomal.pages.push(pageNumber);
-      console.log(`Página ${pageNumber}: Clasificada como página normal.`);
+     // console.log(`Página ${pageNumber}: Clasificada como página normal.`);
     }
   }
 }
