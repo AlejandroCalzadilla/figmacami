@@ -122,6 +122,7 @@ import { Component } from '@angular/core';
     componente:componente,
     links,
     ruta_componente:rutacomponente,
+    
      
   };
 }

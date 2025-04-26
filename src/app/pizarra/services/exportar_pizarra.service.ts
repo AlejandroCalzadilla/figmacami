@@ -54,7 +54,7 @@ export class ExportarPizarraService {
 
   private procesarComponentesNoCrud(contenido: PageContent[], totalpages: number): void {
     const componentes: GeneratedComponent[] = [];
-
+     
     if (this.navbar.count === 0 && this.aside.count === 0) {
       if (this.formcreate.count === 0 && this.formedit.count === 0 && 
           this.showregister.count === 0 && this.index_o_table.count === 0) {
@@ -77,7 +77,7 @@ export class ExportarPizarraService {
       }
       if(this.formcreate.count > 0 && this.formedit.count > 0 && this.showregister.count > 0 && this.index_o_table.count > 0){
         const cruds = this.agruparYValidarCruds(contenido);
-        console.log('CRUDs encontrados', cruds);  
+       // console.log('CRUDs encontrados', cruds);  
         const componentescrud=this.procesarCruds(cruds);
         //console.log('componentes crud', componentescrud);
         componentes.push(...componentescrud);

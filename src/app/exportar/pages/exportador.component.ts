@@ -18,7 +18,9 @@ export default class ExportadorComponent {
   resultado: { componente: string, servicio: string, interfaz: string } | null = null;
   error: string = '';
 
-  constructor(private exportadorService: ExportadorAngularService) { }
+  constructor(
+    private exportadorService: ExportadorAngularService
+  ) { }
 
   exportar() {
     try {

@@ -2,7 +2,7 @@ export interface GeneratedComponent {
     html: string;
     css: string;
     ts: string;
-    service:string; 
+    service?:string; 
     interface?:string;
     nombre: string;
     nombreClaseComponent: string;
@@ -16,7 +16,8 @@ export interface GeneratedComponent {
     nombre_archivo_service:string;
     nombre_archivo_interface?:string;
     componente:boolean
-
     ruta_componente:string;
+
+    form?:string;
      
   }

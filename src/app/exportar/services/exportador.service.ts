@@ -72,12 +72,12 @@ addRouteToAppRoutesTs(ruta: string, path: string, component: string, ruta_compon
       // Crear una carpeta page para el componente
       const componentPagesFolder = componentBaseFolder.folder('pages');
       if (!componentPagesFolder) {
-        console.warn(`No se pudo crear la carpeta page  para el componente: ${componente.nombre}`);
+        console.warn(`No se pudo crear la carpeta pages  para el componente: ${componente.nombre}`);
         return;
       
       }      
       if(componente.componente==false){
-      const componentPageFolder = componentPagesFolder.folder(`${componente.nombre}page` );
+      const componentPageFolder = componentPagesFolder.folder(`${componente.nombre}_page` );
       if (!componentPageFolder) {
         console.warn(`No se pudo crear la carpeta page  para el componente: ${componente.nombre}`);
         return;
@@ -94,24 +94,37 @@ addRouteToAppRoutesTs(ruta: string, path: string, component: string, ruta_compon
         return;
       }
       if(componente.componente==true){
-      const componentComponentFolder = componentComponentsFolder.folder(componente.nombre);
+      let componentComponentFolder; 
+      if(componente.form!==undefined && componente.form==="create"){ 
+        componentComponentFolder = componentComponentsFolder.folder(`${componente.nombre}_create` );
+      }
+      else if(componente.form!==undefined || componente.form==="edit"){
+        componentComponentFolder = componentComponentsFolder.folder(`${componente.nombre}_edit` );
+      } 
       if (!componentComponentFolder) {
         console.warn(`No se pudo crear la carpeta page  para el componente: ${componente.nombre}`);
         return;
       }
-
        componentComponentFolder.file(componente.nombre_archivo_ts, componente.ts);
        componentComponentFolder.file(componente.nombre_archivo_html, componente.html);
        componentComponentFolder.file(componente.nombre_archivo_css, componente.css);
       }
 
+
+
       //carpeta services 
+      if(componente.service!==undefined){ 
       const componentServiceFolder = componentBaseFolder.folder(`services`);
       if (!componentServiceFolder) {
         console.warn(`No se pudo crear la carpeta sevice  para el componente: ${componente.nombre}`);
         return;
       }
       componentServiceFolder.file(componente.nombre_archivo_service, componente.service);
+      }
+
+
+
+      
       //carpeta interfaces
       const componentInterfacesFolder = componentBaseFolder.folder(`interfaces`);
       if (!componentInterfacesFolder) {
