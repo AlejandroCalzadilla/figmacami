@@ -100,7 +100,7 @@ export class PizarrapageComponent  {
       this.initializeSocketConnection();
       const debouncedSendEditorState = this.debounce(() => {
         this.sendEditorState();
-      }, 2000);
+      }, 1500);
       this.editor.on('component:update', () => {
         debouncedSendEditorState();
       });
@@ -216,19 +216,52 @@ export class PizarrapageComponent  {
   /* sockets ---------*/
 
   private initializeSocketConnection(): void {
-    this.socket = io('http://localhost:3000'); // Cambia la URL según tu servidor
-    //this.socket.emit('join-room', this.roomId);
+    this.socket = io('http://localhost:3001', {
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      timeout: 20000,
+      path: '/socket.io',
+      transports: ['websocket', 'polling']
+    });
+
+    // Unirse a la sala específica
+    this.socket.emit('join-room', this.roomId);
+
+    // Manejar reconexión
+    this.socket.on('reconnect', () => {
+      console.log('Reconectado al servidor');
+      this.socket.emit('join-room', this.roomId);
+      this.sendEditorState();
+    });
+
+    // Manejar actualizaciones del editor
     this.socket.on('editor-update', (data: any) => {
-      //console.log('Datos recibidos desde el servidor:', data);
-      if (data.pageIndex === this.currentPage) {
-        this.editor.setComponents(data.components);
-        this.editor.setStyle(data.styles);
+      if (data.roomId === this.roomId && data.pageIndex === this.currentPage) {
+        const currentState = this.editor.getHtml() + this.editor.getCss();
+        if (currentState !== data.components + data.styles) {
+          this.editor.setComponents(data.components);
+          this.editor.setStyle(data.styles);
+        }
       }
+    });
+
+    // Manejar cambios de página de otros usuarios
+    this.socket.on('page-change', (data: any) => {
+      if (data.roomId === this.roomId) {
+        this.currentPage = data.pageIndex;
+        this.loadPage(this.currentPage);
+        this.updatePagination();
+      }
+    });
+
+    // Manejar errores de conexión
+    this.socket.on('connect_error', (error: any) => {
+      console.error('Error de conexión:', error);
     });
   }
 
-
-  private debounceTimer: any = 500;
+  private debounceTimer: any = 1500;
 
   private sendEditorState(): void {
     clearTimeout(this.debounceTimer);
@@ -236,7 +269,7 @@ export class PizarrapageComponent  {
       const currentHtml = this.editor.getHtml();
       const currentCss = this.editor.getCss();
       const currentState = currentHtml + currentCss;
-      // Solo enviar si hay un cambio real
+
       if (currentState !== this.lastSentState) {
         this.lastSentState = currentState;
 
@@ -245,12 +278,20 @@ export class PizarrapageComponent  {
           pageIndex: this.currentPage,
           components: currentHtml,
           styles: currentCss,
+          timestamp: Date.now()
         };
+
         this.socket.emit('editor-update', changes);
-       // console.log('Estado enviado al servidor.');
-      } else {
       }
-    }, 1000); // Espera 1 segundo tras el último cambio antes de enviar
+    }, 1000);
+  }
+
+  // Método para notificar cambios de página
+  private notifyPageChange(): void {
+    this.socket.emit('page-change', {
+      roomId: this.roomId,
+      pageIndex: this.currentPage
+    });
   }
 
   private debounce(func: Function, wait: number): Function {
@@ -280,11 +321,11 @@ export class PizarrapageComponent  {
     if (!paginationPanel) return;
 
     paginationPanel.innerHTML = `
-    <button id="prev-page" title="Página Anterior"><i class="fa fa-chevron-left"></i></button>
-    <span>Página ${this.currentPage + 1} de ${this.pages.length}</span>
-    <button id="next-page" title="Página Siguiente"><i class="fa fa-chevron-right"></i></button>
-    <button id="add-page" title="Nueva Página"><i class="fa fa-plus"></i></button>
-  `;
+      <button id="prev-page" title="Página Anterior"><i class="fa fa-chevron-left"></i></button>
+      <span>Página ${this.currentPage + 1} de ${this.pages.length}</span>
+      <button id="next-page" title="Página Siguiente"><i class="fa fa-chevron-right"></i></button>
+      <button id="add-page" title="Nueva Página"><i class="fa fa-plus"></i></button>
+    `;
 
     const prevBtn = document.getElementById('prev-page') as HTMLButtonElement;
     const nextBtn = document.getElementById('next-page') as HTMLButtonElement;
@@ -295,36 +336,32 @@ export class PizarrapageComponent  {
 
     prevBtn.onclick = () => {
       if (this.currentPage > 0) {
-        //this.pages[this.currentPage] = this.editor.getHtml();
         this.saveCurrentPage();
         this.currentPage--;
-        // this.editor.setComponents(this.pages[this.currentPage]);
-        this.loadPage(this.currentPage); // Carga la página anterior
-        //this.editor
+        this.loadPage(this.currentPage);
         this.updatePagination();
+        this.notifyPageChange();
       }
     };
 
     nextBtn.onclick = () => {
       if (this.currentPage < this.pages.length - 1) {
-        // this.pages[this.currentPage] = this.editor.getHtml();
         this.saveCurrentPage();
         this.currentPage++;
-        // this.editor.setComponents(this.pages[this.currentPage]);
-        this.loadPage(this.currentPage); // Carga la página siguiente
+        this.loadPage(this.currentPage);
         this.updatePagination();
+        this.notifyPageChange();
       }
     };
 
     addBtn.onclick = () => {
-
-      // this.pages[this.currentPage] = this.editor.getHtml();
       this.saveCurrentPage();
       this.pages.push('<p>Nueva Página</p>');
+      this.pagescss.push('<style></style>');
       this.currentPage = this.pages.length - 1;
-      //this.editor.setComponents(this.pages[this.currentPage]);
-      this.loadPage(this.currentPage); // Carga la nueva página
+      this.loadPage(this.currentPage);
       this.updatePagination();
+      this.notifyPageChange();
     };
   }
 
