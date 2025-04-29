@@ -78,9 +78,13 @@ export class ExportarPizarraService {
         const componentescrud=await this.procesarCruds(cruds);
         await this.delay(8000);
         componentes.push(...componentescrud);
-        links.push(componentescrud.map((componente) => componente.ruta.path).join(','));
-       
-        //await this.delay(8000);
+        links.push(
+          componentescrud
+            .map((componente) => componente.ruta.path)
+            .filter((path) => path.includes('index'))
+            .join(',')
+        );
+        await this.delay(8000);
       }
       addLinksToMenu(menu, links);
       const linksfinal = assignLinksToMenuComponent(menu.ts, links);

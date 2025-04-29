@@ -397,9 +397,10 @@ export class DrawingService {
             const htmlCssGenerado: string = await this.geminiService.textoAImagen(file);
             console.log('HTML y CSS generados:', htmlCssGenerado);    
              // Filtrar el contenido dentro de ```html``` y ```css```
-        const htmlMatch = htmlCssGenerado.match(/```html\s*([\s\S]*?)\s*```/);
+         
+         const htmlMatch = htmlCssGenerado.match(/```html\s*([\s\S]*?)\s*```/);
         const cssMatch = htmlCssGenerado.match(/```css\s*([\s\S]*?)\s*```/);
-
+           this.delay(8000);
         const html = htmlMatch ? htmlMatch[1].trim() : '';
         const css = cssMatch ? cssMatch[1].trim() : '';
     
@@ -445,6 +446,11 @@ export class DrawingService {
         link.click();
         document.body.removeChild(link);
     } */
+
+
+        private delay(ms: number): Promise<void> {
+            return new Promise(resolve => setTimeout(resolve, ms));
+          }
 
     importImageToCanvas(stage: Konva.Stage, layer: Konva.Layer, imageFile: File) {
         const reader = new FileReader();
