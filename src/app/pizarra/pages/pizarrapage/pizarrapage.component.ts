@@ -81,11 +81,11 @@ export class PizarrapageComponent  {
       
           for (const key in parsedData) {
             if (key.includes('_html')) {
-              console.log('HTML encontrado:', key);
+            //  console.log('HTML encontrado:', key);
               pages.push(parsedData[key]);
             }
             if (key.includes('_css')) {
-              console.log('CSS encontrado:', key);
+            //  console.log('CSS encontrado:', key);
               pagescss.push(parsedData[key]);
             }
           }
@@ -210,7 +210,7 @@ export class PizarrapageComponent  {
       allPagesContent.push({ html, css });
     }
   
-    console.log('Contenido de todas las páginas como JSON:', allPagesContent);
+   // console.log('Contenido de todas las páginas como JSON:', allPagesContent);
     this.prueba(allPagesContent, totalPages);
   }
 

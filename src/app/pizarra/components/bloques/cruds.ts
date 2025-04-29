@@ -7,38 +7,38 @@ export function addCrudsBlocks(editor:any){
           <form style="padding: 20px; border: 1px solid #ccc; background-color: #f9f9f9;">
             <h3 style="margin-bottom: 15px;">Formulario</h3>
             <div style="margin-bottom: 10px;">
-              <label for="name" style="display: block; margin-bottom: 5px;">Nombre:</label>
-              <input type="text" id="name" name="name" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+              <label  style="display: block; margin-bottom: 5px;">nombre</label>
+              <input type="text" id="name"  style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
             </div>
             <div style="margin-bottom: 10px;">
-              <label for="email" style="display: block; margin-bottom: 5px;">Correo Electrónico:</label>
-              <input type="email" id="email" name="email" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+              <label  style="display: block; margin-bottom: 5px;">correo</label>
+              <input type="email" id="email"  style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
             </div>
             <div style="margin-bottom: 10px;">
-              <label for="password" style="display: block; margin-bottom: 5px;">Contraseña:</label>
+              <label  style="display: block; margin-bottom: 5px;">contrasena</label>
               <input type="password" id="password" name="password" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
             </div>
             <div style="margin-bottom: 10px;">
-              <label for="gender" style="display: block; margin-bottom: 5px;">Género:</label>
-              <select id="gender" name="gender" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-                <option value="male">Masculino</option>
-                <option value="female">Femenino</option>
-                <option value="other">Otro</option>
+              <label  style="display: block; margin-bottom: 5px;">genero</label>
+              <select   style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                <option value="masculino">Masculino</option>
+                <option value="femenino">Femenino</option>
+                <option value="otro">Otro</option>
               </select>
             </div>
             <div style="margin-bottom: 10px;">
-              <label style="display: block; margin-bottom: 5px;">Preferencias:</label>
-              <label><input type="checkbox" name="preference" value="news"> Recibir noticias</label><br>
-              <label><input type="checkbox" name="preference" value="updates"> Recibir actualizaciones</label>
+              <label style="display: block; margin-bottom: 5px;">preferencia</label>
+              <label><input type="checkbox"  value="nuevas"> Recibir noticias</label><br>
+              <label><input type="checkbox"  value="actualizaciones"> Recibir actualizaciones</label>
             </div>
             <div style="margin-bottom: 10px;">
-              <label style="display: block; margin-bottom: 5px;">Estado Civil:</label>
-              <label><input type="radio" name="marital_status" value="single"> Soltero</label><br>
-              <label><input type="radio" name="marital_status" value="married"> Casado</label>
+              <label style="display: block; margin-bottom: 5px;">estado_civil</label>
+              <label><input type="radio"  value="soltero"> Soltero</label><br>
+              <label><input type="radio"  value="casado"> Casado</label>
             </div>
             <div style="margin-bottom: 10px;">
-              <label for="message" style="display: block; margin-bottom: 5px;">Mensaje:</label>
-              <textarea id="message" name="message" rows="4" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"></textarea>
+              <label  style="display: block; margin-bottom: 5px;">mensaje</label>
+              <textarea id="message"  rows="4" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"></textarea>
             </div>
           <button  id="crear" type="submit" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;" contenteditable="false"> Crear</button>
             </form>
@@ -57,38 +57,38 @@ export function addCrudsBlocks(editor:any){
           <form style="padding: 20px; border: 1px solid #ccc; background-color: #f9f9f9;">
             <h3 style="margin-bottom: 15px;">Formulario</h3>
             <div style="margin-bottom: 10px;">
-              <label for="name" style="display: block; margin-bottom: 5px;">Nombre:</label>
-              <input type="text" id="name" name="name" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+              <label  style="display: block; margin-bottom: 5px;">nombre</label>
+              <input type="text" id="name"  style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
             </div>
             <div style="margin-bottom: 10px;">
-              <label for="email" style="display: block; margin-bottom: 5px;">Correo Electrónico:</label>
-              <input type="email" id="email" name="email" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+              <label  style="display: block; margin-bottom: 5px;">correo</label>
+              <input type="email" id="email"  style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
             </div>
             <div style="margin-bottom: 10px;">
-              <label for="password" style="display: block; margin-bottom: 5px;">Contraseña:</label>
-              <input type="password" id="password" name="password" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+              <label  style="display: block; margin-bottom: 5px;">contrasena</label>
+              <input type="password" id="password"  style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
             </div>
             <div style="margin-bottom: 10px;">
-              <label for="gender" style="display: block; margin-bottom: 5px;">Género:</label>
-              <select id="gender" name="gender" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-                <option value="male">Masculino</option>
-                <option value="female">Femenino</option>
-                <option value="other">Otro</option>
+              <label  style="display: block; margin-bottom: 5px;">genero</label>
+              <select id="gender"  style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                <option value="masculino">masculino</option>
+                <option value="femenino">femenino</option>
+                <option value="otro">Otro</option>
               </select>
             </div>
             <div style="margin-bottom: 10px;">
-              <label style="display: block; margin-bottom: 5px;">Preferencias:</label>
-              <label><input type="checkbox" name="preference" value="news"> Recibir noticias</label><br>
-              <label><input type="checkbox" name="preference" value="updates"> Recibir actualizaciones</label>
+              <label style="display: block; margin-bottom: 5px;">preferencias</label>
+              <label><input type="checkbox"  value="nuevas"> Recibir noticias</label><br>
+              <label><input type="checkbox"  value="actualizaciones">Recibir actualizaciones</label>
             </div>
             <div style="margin-bottom: 10px;">
-              <label style="display: block; margin-bottom: 5px;">Estado Civil:</label>
-              <label><input type="radio" name="marital_status" value="single"> Soltero</label><br>
-              <label><input type="radio" name="marital_status" value="married"> Casado</label>
+              <label style="display: block; margin-bottom: 5px;">estado_civil</label>
+              <label><input type="radio" value="soltero"> Soltero</label><br>
+              <label><input type="radio"  value="casado"> Casado</label>
             </div>
             <div style="margin-bottom: 10px;">
-              <label for="message" style="display: block; margin-bottom: 5px;">Mensaje:</label>
-              <textarea id="message" name="message" rows="4" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"></textarea>
+              <label  style="display: block; margin-bottom: 5px;">mensaje</label>
+              <textarea id="message"  rows="4" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"></textarea>
             </div>
            <button  id="editar" type="submit" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;" contenteditable="false"> editar</button>
           </form>
@@ -107,12 +107,12 @@ export function addCrudsBlocks(editor:any){
             <table id="vistaregistro" style="width: 100%; border-collapse: collapse; text-align: left;">
               <thead>
                 <tr style="background-color: #f2f2f2;">
-                  <th style="padding: 10px; border: 1px solid #ccc;">Nombre</th>
-                  <th style="padding: 10px; border: 1px solid #ccc;">Correo Electrónico</th>
-                  <th style="padding: 10px; border: 1px solid #ccc;">Género</th>
-                  <th style="padding: 10px; border: 1px solid #ccc;">Preferencias</th>
-                  <th style="padding: 10px; border: 1px solid #ccc;">Estado Civil</th>
-                  <th style="padding: 10px; border: 1px solid #ccc;">Acciones</th>
+                  <th style="padding: 10px; border: 1px solid #ccc;">nombre</th>
+                  <th style="padding: 10px; border: 1px solid #ccc;">correo</th>
+                  <th style="padding: 10px; border: 1px solid #ccc;">genero</th>
+                  <th style="padding: 10px; border: 1px solid #ccc;">preferencias</th>
+                  <th style="padding: 10px; border: 1px solid #ccc;">estado_civil</th>
+                  <th style="padding: 10px; border: 1px solid #ccc;">acciones</th>
                 </tr>
               </thead>
               <tbody>

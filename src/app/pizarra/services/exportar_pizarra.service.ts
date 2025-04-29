@@ -3,7 +3,7 @@ import { PageContent } from '../interfaces/pagecontent';
 import { generateMenuComponent } from './componentes_export/menu_random_component';
 import { generateRandomComponent } from './componentes_export/random_component';
 import { addLinksToMenu, assignLinksToMenuComponent } from './componentes_export/añadir_links_menus';
-import { ExportadorService } from '../../exportar/services/exportador.service';
+import { ExportadorService } from './exportador.service';
 import { GeneratedComponent } from '../interfaces/componente_angular';
 import { CrudValidado } from '../interfaces/crud.interface';
 import { ExportadorCrudService } from './exportador_crud.service';
@@ -52,7 +52,7 @@ export class ExportarPizarraService {
     this.procesarComponentesNoCrud(contenido, totalpages);
   }
 
-  private procesarComponentesNoCrud(contenido: PageContent[], totalpages: number): void {
+  private async procesarComponentesNoCrud(contenido: PageContent[], totalpages: number): Promise<void> {
     const componentes: GeneratedComponent[] = [];
      
     if (this.navbar.count === 0 && this.aside.count === 0) {
@@ -77,24 +77,29 @@ export class ExportarPizarraService {
       }
       if(this.formcreate.count > 0 && this.formedit.count > 0 && this.showregister.count > 0 && this.index_o_table.count > 0){
         const cruds = this.agruparYValidarCruds(contenido);
-       // console.log('CRUDs encontrados', cruds);  
-        const componentescrud=this.procesarCruds(cruds);
-        //console.log('componentes crud', componentescrud);
+        const componentescrud=await this.procesarCruds(cruds);
+        await this.delay(8000);
+       
         componentes.push(...componentescrud);
+        //await this.delay(8000);
       }
     }
-
+    console.log("componentes antes de enviar al otro service",componentes);
     this.exportarComponentes(componentes);
   }
 
-  private procesarCruds(cruds: CrudValidado[]) : GeneratedComponent[] {
-    let componentes: GeneratedComponent[] = [];
-    cruds.forEach((crud, index) => {
-       console.log('Procesando CRUD:', crud);
-        componentes=this.exportadorCrud.generarComponentesCrud(crud);
-      //const componente = generateCrudComponent(crud);
+
+  private delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+  private async procesarCruds(cruds: CrudValidado[]): Promise<GeneratedComponent[]> {
+    const promesas = cruds.map(async (crud) => {
+     // console.log('Procesando CRUD:', crud);
+      return await this.exportadorCrud.generarComponentesCrud(crud);
     });
-    return componentes;
+    
+    const resultados = await Promise.all(promesas);
+    return resultados.flat();
   }
 
   private exportarComponentes(componentes: GeneratedComponent[]): void {
@@ -172,7 +177,7 @@ export class ExportarPizarraService {
     );
 
     if (!button) {
-      console.warn(`Página ${pageNumber}: Se encontró un formulario, pero no tiene un botón con el texto "crear".`);
+      //console.warn(`Página ${pageNumber}: Se encontró un formulario, pero no tiene un botón con el texto "crear".`);
       return null;
     }
 
@@ -189,7 +194,7 @@ export class ExportarPizarraService {
     );
 
     if (!button) {
-      console.warn(`Página ${pageNumber}: Se encontró un formulario, pero no tiene un botón con el texto "editar".`);
+    //  console.warn(`Página ${pageNumber}: Se encontró un formulario, pero no tiene un botón con el texto "editar".`);
       return null;
     }
 
@@ -206,7 +211,7 @@ export class ExportarPizarraService {
     });
 
     if (!vistaRegistroElement) {
-      console.warn(`Página ${pageNumber}: No se encontró un elemento que contenga un botón con el texto "Volver".`);
+      //console.warn(`Página ${pageNumber}: No se encontró un elemento que contenga un botón con el texto "Volver".`);
       return null;
     }
 
@@ -233,7 +238,7 @@ export class ExportarPizarraService {
     });
 
     if (!vistaRegistroElement) {
-      console.warn(`Página ${pageNumber}: No se encontró un elemento que contenga una tabla con los botones "ver", "editar" y "borrar".`);
+     // console.warn(`Página ${pageNumber}: No se encontró un elemento que contenga una tabla con los botones "ver", "editar" y "borrar".`);
       return null;
     }
 
