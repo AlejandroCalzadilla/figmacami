@@ -36,10 +36,9 @@ export function generateRandomComponent(html_contenido: string, css_contenido: s
     `;
     const service= `
       import { Injectable } from '@angular/core';
-import { GeneratedComponent } from '../../interfaces/componente_angular';
       @Injectable({
         providedIn:'root'  
-      )}
+   })
 
    export class ${nombre_Clase_Service} {
       constructor() {}
@@ -75,6 +74,6 @@ import { GeneratedComponent } from '../../interfaces/componente_angular';
       nombre_Clase_Service:nombre_Clase_Service,
       nombre_archivo_service:nombre_archivo_service,
       componente:componente,
-      ruta_componente:ruta_componente,
+      ruta_componente:`./${nombre}/pages/${nombre}_page/${nombre}.component`,
     };
   }

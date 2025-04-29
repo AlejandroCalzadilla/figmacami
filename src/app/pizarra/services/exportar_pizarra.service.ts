@@ -43,10 +43,10 @@ export class ExportarPizarraService {
     }
 
     // Procesar CRUDs si existen
-    if (this.formcreate.count > 0 && this.formedit.count > 0 && this.showregister.count > 0 && this.index_o_table.count > 0) {
+   /*  if (this.formcreate.count > 0 && this.formedit.count > 0 && this.showregister.count > 0 && this.index_o_table.count > 0) {
       const cruds = this.agruparYValidarCruds(contenido);
       this.procesarCruds(cruds);
-    }
+    } */
 
     // Procesar componentes no CRUD
     this.procesarComponentesNoCrud(contenido, totalpages);
@@ -56,11 +56,12 @@ export class ExportarPizarraService {
     const componentes: GeneratedComponent[] = [];
      
     if (this.navbar.count === 0 && this.aside.count === 0) {
+      const menu = generateMenuComponent();
+      const links: string[] = [];
+
       if (this.formcreate.count === 0 && this.formedit.count === 0 && 
           this.showregister.count === 0 && this.index_o_table.count === 0) {
-        const menu = generateMenuComponent();
-        const links: string[] = [];
-
+      
         for (let i = 0; i < totalpages; i++) {
           const pageContent = contenido[i];
           if (pageContent) {
@@ -70,20 +71,23 @@ export class ExportarPizarraService {
           }
         }
 
-        addLinksToMenu(menu, links);
-        const linksfinal = assignLinksToMenuComponent(menu.ts, links);
-        menu.ts = linksfinal;
-        componentes.push(menu);
+       
       }
       if(this.formcreate.count > 0 && this.formedit.count > 0 && this.showregister.count > 0 && this.index_o_table.count > 0){
         const cruds = this.agruparYValidarCruds(contenido);
         const componentescrud=await this.procesarCruds(cruds);
         await this.delay(8000);
-       
         componentes.push(...componentescrud);
+        links.push(componentescrud.map((componente) => componente.ruta.path).join(','));
+       
         //await this.delay(8000);
       }
+      addLinksToMenu(menu, links);
+      const linksfinal = assignLinksToMenuComponent(menu.ts, links);
+      menu.ts = linksfinal;
+      componentes.push(menu);
     }
+    
     console.log("componentes antes de enviar al otro service",componentes);
     this.exportarComponentes(componentes);
   }

@@ -1,5 +1,9 @@
-import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
 import Konva from 'konva';
+import { GeminiService } from '../../services/gemini.service';
+import { PageContent } from '../../pizarra/interfaces/pagecontent';
+import { Page } from 'grapesjs';
 
 @Injectable({
     providedIn: 'root',
@@ -10,6 +14,8 @@ export class DrawingService {
     private currentTextNode: Konva.Text | null = null;
     private currentLayer: Konva.Layer | null = null;
     private outsideClickHandler: ((e: Event) => void) | null = null;
+    private http = inject(HttpClient);
+    private geminiService = inject(GeminiService);
 
     // Método para limpiar cualquier textarea activo
     cleanupTextarea(): void {
@@ -20,17 +26,17 @@ export class DrawingService {
                 console.warn('Error al eliminar textarea:', e);
             }
         }
-        
+
         if (this.outsideClickHandler) {
             window.removeEventListener('click', this.outsideClickHandler);
             this.outsideClickHandler = null;
         }
-        
+
         if (this.currentTextNode && this.currentLayer) {
             this.currentTextNode.show();
             this.currentLayer.draw();
         }
-        
+
         this.currentTextarea = null;
         this.currentTextNode = null;
         this.currentLayer = null;
@@ -46,70 +52,70 @@ export class DrawingService {
         getStrokeWidth: () => number,
         setSelectedShape: (shape: Konva.Shape | Konva.Image | null) => void,
         getSelectedShape: () => Konva.Shape | Konva.Image | null
-      ): void {
+    ): void {
         let isDrawing = false;
         let currentLine: Konva.Line | null = null;
-    
-        stage.on('click tap', (e) => {
-          if (getTool() !== 'select') return;
-    
-          if (e.target === stage) {
-            transformer.nodes([]);
-            setSelectedShape(null);
-            return;
-          }
-    
-          const clickedOnTransformer = e.target.getParent()?.className === 'Transformer';
-          if (clickedOnTransformer) return;
-    
-          if (e.target instanceof Konva.Shape || e.target instanceof Konva.Image) {
-            setSelectedShape(e.target);
-            transformer.nodes([e.target]);
-          } else {
-            transformer.nodes([]);
-            setSelectedShape(null);
-          }
-        });
-    
-        stage.on('mousedown touchstart', (e) => {
-          if (getTool() !== 'pencil') return;
-    
-          isDrawing = true;
-          const pos = stage.getPointerPosition();
-          if (pos) {
-            currentLine = new Konva.Line({
-              points: [pos.x, pos.y],
-              stroke: getColor(),
-              strokeWidth: getStrokeWidth(),
-              lineCap: 'round',
-              lineJoin: 'round',
-              name: 'shape',
-              draggable: true,
-            });
-            layer.add(currentLine);
-          }
-        });
-    
-        stage.on('mousemove touchmove', (e) => {
-          if (!isDrawing || getTool() !== 'pencil') return;
-    
-          e.evt.preventDefault();
-          const pos = stage.getPointerPosition();
-          if (pos && currentLine) {
-            const newPoints = currentLine.points().concat([pos.x, pos.y]);
-            currentLine.points(newPoints);
-            layer.batchDraw();
-          }
-        });
-    
-        stage.on('mouseup touchend', () => {
-          if (getTool() === 'pencil') {
-            isDrawing = false;
-          }
-        });
-      }
 
-   
+        stage.on('click tap', (e) => {
+            if (getTool() !== 'select') return;
+
+            if (e.target === stage) {
+                transformer.nodes([]);
+                setSelectedShape(null);
+                return;
+            }
+
+            const clickedOnTransformer = e.target.getParent()?.className === 'Transformer';
+            if (clickedOnTransformer) return;
+
+            if (e.target instanceof Konva.Shape || e.target instanceof Konva.Image) {
+                setSelectedShape(e.target);
+                transformer.nodes([e.target]);
+            } else {
+                transformer.nodes([]);
+                setSelectedShape(null);
+            }
+        });
+
+        stage.on('mousedown touchstart', (e) => {
+            if (getTool() !== 'pencil') return;
+
+            isDrawing = true;
+            const pos = stage.getPointerPosition();
+            if (pos) {
+                currentLine = new Konva.Line({
+                    points: [pos.x, pos.y],
+                    stroke: getColor(),
+                    strokeWidth: getStrokeWidth(),
+                    lineCap: 'round',
+                    lineJoin: 'round',
+                    name: 'shape',
+                    draggable: true,
+                });
+                layer.add(currentLine);
+            }
+        });
+
+        stage.on('mousemove touchmove', (e) => {
+            if (!isDrawing || getTool() !== 'pencil') return;
+
+            e.evt.preventDefault();
+            const pos = stage.getPointerPosition();
+            if (pos && currentLine) {
+                const newPoints = currentLine.points().concat([pos.x, pos.y]);
+                currentLine.points(newPoints);
+                layer.batchDraw();
+            }
+        });
+
+        stage.on('mouseup touchend', () => {
+            if (getTool() === 'pencil') {
+                isDrawing = false;
+            }
+        });
+    }
+
+
 
 
 
@@ -117,7 +123,7 @@ export class DrawingService {
     selectTool(tool: string, stage: Konva.Stage, transformer: Konva.Transformer): void {
         // Limpiar cualquier textarea activo al cambiar de herramienta
         this.cleanupTextarea();
-        
+
         // Cambiar el cursor del stage según la herramienta
         switch (tool) {
             case 'select':
@@ -216,7 +222,7 @@ export class DrawingService {
     createText(stage: Konva.Stage, layer: Konva.Layer, options: { color: string }): Konva.Text {
         // Limpiar cualquier textarea activo antes de crear uno nuevo
         this.cleanupTextarea();
-        
+
         const textNode = new Konva.Text({
             x: stage.width() / 2 - 50,
             y: stage.height() / 2,
@@ -234,7 +240,7 @@ export class DrawingService {
         textNode.on('dblclick dbltap', () => {
             // Limpiar cualquier textarea activo antes de crear uno nuevo
             this.cleanupTextarea();
-            
+
             const textPosition = textNode.absolutePosition();
             const containerRect = stage.container().getBoundingClientRect();
 
@@ -271,7 +277,7 @@ export class DrawingService {
                 }
                 textNode.show();
                 layer.draw();
-                
+
                 // Limpiar referencias
                 this.currentTextarea = null;
                 this.currentTextNode = null;
@@ -316,13 +322,13 @@ export class DrawingService {
         return textNode;
     }
 
-    selectShape(shape: Konva.Shape | Konva.Image, transformer: Konva.Transformer){
+    selectShape(shape: Konva.Shape | Konva.Image, transformer: Konva.Transformer) {
         //console.log('Seleccionando forma:', shape);
-        transformer.nodes([shape]);  
+        transformer.nodes([shape]);
         return shape;
     }
 
-    deleteSelected(selectedShape: Konva.Shape | Konva.Image |   null, transformer: Konva.Transformer, layer: Konva.Layer): void {
+    deleteSelected(selectedShape: Konva.Shape | Konva.Image | null, transformer: Konva.Transformer, layer: Konva.Layer): void {
         if (selectedShape) {
             selectedShape.destroy();
             transformer.nodes([]);
@@ -332,9 +338,9 @@ export class DrawingService {
 
     deleteSelectedImage(selectedImage: Konva.Image | null, transformer: Konva.Transformer, layer: Konva.Layer): void {
         if (selectedImage && selectedImage instanceof Konva.Image) {
-          selectedImage.destroy(); // Eliminar la imagen del lienzo
-          transformer.nodes([]); // Limpiar el transformador
-          layer.draw(); // Redibujar la capa
+            selectedImage.destroy(); // Eliminar la imagen del lienzo
+            transformer.nodes([]); // Limpiar el transformador
+            layer.draw(); // Redibujar la capa
         }
     }
 
@@ -347,7 +353,82 @@ export class DrawingService {
         }
     }
 
-    exportImage(stage: Konva.Stage, transformer: Konva.Transformer): void {
+
+
+   
+
+    /*  private guardarHtmlEnServidor(html: string): void {
+       // Lógica para enviar el HTML generado a un servidor
+       this.http.post('https://example.com/api/save-html', { html }).subscribe(
+         response => {
+           console.log('HTML guardado exitosamente:', response);
+         },
+         error => {
+           console.error('Error al guardar el HTML:', error);
+         }
+       );
+     } */
+
+       async exportImage({ stage, transformer }: { stage: Konva.Stage; transformer: Konva.Transformer; }): Promise<PageContent> {
+        try {
+            // Ocultar el transformador temporalmente
+            transformer.visible(false);
+            stage.draw();
+    
+            // Generar imagen del canvas
+            const dataURL = stage.toDataURL({ pixelRatio: 2 });
+    
+            // Mostrar el transformador de nuevo
+            transformer.visible(true);
+            stage.draw();
+    
+            // Convertir el dataURL a un archivo y procesarlo
+            const file = this.dataURLToFile(dataURL, 'canvas-image.png');
+            return await this.procesarImagen(file); // Procesar la imagen generada
+        } catch (error) {
+            console.error('Error al exportar la imagen:', error);
+        }
+        return { html: '', css: '' }; // Retornar un objeto vacío en caso de error
+    }
+
+
+    async procesarImagen(file: File): Promise<PageContent> {
+        try {
+            const htmlCssGenerado: string = await this.geminiService.textoAImagen(file);
+            console.log('HTML y CSS generados:', htmlCssGenerado);    
+             // Filtrar el contenido dentro de ```html``` y ```css```
+        const htmlMatch = htmlCssGenerado.match(/```html\s*([\s\S]*?)\s*```/);
+        const cssMatch = htmlCssGenerado.match(/```css\s*([\s\S]*?)\s*```/);
+
+        const html = htmlMatch ? htmlMatch[1].trim() : '';
+        const css = cssMatch ? cssMatch[1].trim() : '';
+    
+         const resultado:PageContent = {
+            html: html,
+            css: css,
+        };
+        return resultado;    
+        } catch (error) {
+
+            console.error('Error al procesar la imagen:', error);
+        }
+        return { html: '', css: '' }; // Retornar un objeto vacío en caso de error
+    }
+    
+    private dataURLToFile(dataURL: string, fileName: string): File {
+        const byteString = atob(dataURL.split(',')[1]);
+        const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
+        const arrayBuffer = new ArrayBuffer(byteString.length);
+        const uint8Array = new Uint8Array(arrayBuffer);
+    
+        for (let i = 0; i < byteString.length; i++) {
+            uint8Array[i] = byteString.charCodeAt(i);
+        }
+    
+        return new File([arrayBuffer], fileName, { type: mimeString });
+    }
+
+    /* exportImage(stage: Konva.Stage, transformer: Konva.Transformer): void {
         // Ocultar el transformador temporalmente
         transformer.visible(false);
         stage.draw();
@@ -363,13 +444,13 @@ export class DrawingService {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-    }
+    } */
 
     importImageToCanvas(stage: Konva.Stage, layer: Konva.Layer, imageFile: File) {
         const reader = new FileReader();
         let konvaImage: Konva.Image | undefined; // Crear una nueva instancia de Konva.Image
         console.log('Importando imagen...');
-        const numeroramdom= Math.floor(Math.random() * 1000); // Generar un número aleatorio para el nombre de la imagen
+        const numeroramdom = Math.floor(Math.random() * 1000); // Generar un número aleatorio para el nombre de la imagen
         reader.onload = () => {
             const img = new window.Image();
             img.src = reader.result as string;
@@ -378,7 +459,7 @@ export class DrawingService {
                 const defaultWidth = 600; // Ancho por defecto
                 const defaultHeight = 400; // Alto por defecto
 
-                 konvaImage = new Konva.Image({
+                konvaImage = new Konva.Image({
                     image: img,
                     x: stage.width() / 2 - defaultWidth / 2, // Centrar horizontalmente
                     y: stage.height() / 2 - defaultHeight / 2, // Centrar verticalmente
@@ -387,13 +468,13 @@ export class DrawingService {
                     draggable: true,
                     name: `pimported-image ${numeroramdom}`, // Nombre único para la imagen importada
                 });
-               
-                
+
+
                 layer.add(konvaImage);
                 layer.draw();
                 console.log('layer', layer);
             };
-        }; 
+        };
         reader.readAsDataURL(imageFile);// Retorna la imagen de Konva creada
     }
 
@@ -406,63 +487,63 @@ export class DrawingService {
 
     enableDoubleClickEdit(stage: Konva.Stage) {
         stage.on('dblclick dbltap', (e) => {
-          const target = e.target;
-          if (!target || target === stage) return;
-      
-          const modal = document.getElementById('dimensionModal') as HTMLDivElement;
-          const inputWidth = document.getElementById('inputWidth') as HTMLInputElement;
-          const inputHeight = document.getElementById('inputHeight') as HTMLInputElement;
-          const btnSave = document.getElementById('saveDims') as HTMLButtonElement;
-          const btnCancel = document.getElementById('cancelDims') as HTMLButtonElement;
-          const btnDelete = document.getElementById('deleteDims') as HTMLButtonElement; // Botón para eliminar
-      
-          // Mostrar valores actuales
-          inputWidth.value = target.width()?.toString() || '100';
-          inputHeight.value = target.height()?.toString() || '100';
-      
-          modal.style.display = 'block';
-      
-          const saveHandler = () => {
-            let newWidth = parseFloat(inputWidth.value);
-            let newHeight = parseFloat(inputHeight.value);
-      
-            // Limitar las dimensiones
-            const maxWidth = 1200;
-            const maxHeight = 550;
-            const minSize = 10; // Tamaño mínimo permitido
-      
-            newWidth = Math.max(minSize, Math.min(newWidth, maxWidth));
-            newHeight = Math.max(minSize, Math.min(newHeight, maxHeight));
-      
-            target.width(newWidth);
-            target.height(newHeight);
-            target.getLayer()?.draw();
-            closeModal();
-          };
-       
-           console.log('Elemento seleccionado:', target);
-          console.log('Tipo de elemento:', target.getClassName());
-          console.log("transformador",this.transformer.nodes()); 
-          const deleteHandler = () => {
-            target.destroy(); // Eliminar el elemento
-            target.getLayer()?.draw(); // Redibujar la capa
-            closeModal();
-          };
-      
-          const cancelHandler = () => {
-            closeModal();
-          };
-      
-          const closeModal = () => {
-            modal.style.display = 'none';
-            btnSave.removeEventListener('click', saveHandler);
-            btnCancel.removeEventListener('click', cancelHandler);
-            btnDelete.removeEventListener('click', deleteHandler);
-          };
-      
-          btnSave.addEventListener('click', saveHandler);
-          btnCancel.addEventListener('click', cancelHandler);
-          btnDelete.addEventListener('click', deleteHandler); // Agregar evento al botón de eliminar
+            const target = e.target;
+            if (!target || target === stage) return;
+
+            const modal = document.getElementById('dimensionModal') as HTMLDivElement;
+            const inputWidth = document.getElementById('inputWidth') as HTMLInputElement;
+            const inputHeight = document.getElementById('inputHeight') as HTMLInputElement;
+            const btnSave = document.getElementById('saveDims') as HTMLButtonElement;
+            const btnCancel = document.getElementById('cancelDims') as HTMLButtonElement;
+            const btnDelete = document.getElementById('deleteDims') as HTMLButtonElement; // Botón para eliminar
+
+            // Mostrar valores actuales
+            inputWidth.value = target.width()?.toString() || '100';
+            inputHeight.value = target.height()?.toString() || '100';
+
+            modal.style.display = 'block';
+
+            const saveHandler = () => {
+                let newWidth = parseFloat(inputWidth.value);
+                let newHeight = parseFloat(inputHeight.value);
+
+                // Limitar las dimensiones
+                const maxWidth = 1200;
+                const maxHeight = 550;
+                const minSize = 10; // Tamaño mínimo permitido
+
+                newWidth = Math.max(minSize, Math.min(newWidth, maxWidth));
+                newHeight = Math.max(minSize, Math.min(newHeight, maxHeight));
+
+                target.width(newWidth);
+                target.height(newHeight);
+                target.getLayer()?.draw();
+                closeModal();
+            };
+
+            console.log('Elemento seleccionado:', target);
+            console.log('Tipo de elemento:', target.getClassName());
+            console.log("transformador", this.transformer.nodes());
+            const deleteHandler = () => {
+                target.destroy(); // Eliminar el elemento
+                target.getLayer()?.draw(); // Redibujar la capa
+                closeModal();
+            };
+
+            const cancelHandler = () => {
+                closeModal();
+            };
+
+            const closeModal = () => {
+                modal.style.display = 'none';
+                btnSave.removeEventListener('click', saveHandler);
+                btnCancel.removeEventListener('click', cancelHandler);
+                btnDelete.removeEventListener('click', deleteHandler);
+            };
+
+            btnSave.addEventListener('click', saveHandler);
+            btnCancel.addEventListener('click', cancelHandler);
+            btnDelete.addEventListener('click', deleteHandler); // Agregar evento al botón de eliminar
         });
-      }
+    }
 }

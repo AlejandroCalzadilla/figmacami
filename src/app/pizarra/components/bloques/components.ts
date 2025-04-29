@@ -174,6 +174,34 @@ export function addComponentesBlocks(editor:any){
         attributes: { class: 'fa fa-header' }
       });
 
+
+      editor.BlockManager.add('custom-card', {
+        label: 'Tarjeta Personalizada',
+        category: 'Componentes',
+        content: `
+          <div style="width: 300px; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); overflow: hidden; font-family: Arial, sans-serif;">
+            <div style="background-color: #f5f5f5; padding: 15px; text-align: center;">
+              <h3 style="margin: 0; color: #333;">Título de la Tarjeta</h3>
+            </div>
+            <div style="padding: 15px;">
+              <p style="color: #555; font-size: 14px; line-height: 1.5;">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante dapibus diam.
+              </p>
+              <input type="text" placeholder="Escribe aquí..." style="width: 100%; padding: 10px; margin-top: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;">
+            </div>
+            <div style="padding: 15px; background-color: #f9f9f9; text-align: center;">
+              <p style="color: #777; font-size: 12px; margin-bottom: 10px;">Sube tu imagen aquí:</p>
+              <div style="border: 2px dashed #ccc; padding: 20px; border-radius: 4px; background-color: #fff;">
+                <p style="color: #aaa; font-size: 12px;">Arrastra y suelta una imagen o haz clic para subir</p>
+              </div>
+            </div>
+          </div>
+        `,
+        attributes: { class: 'fa fa-id-card' }
+      });
+
+
+
       editor.BlockManager.add('custom-aside', {
         label: 'Sidebar',
         category: 'Componentes',

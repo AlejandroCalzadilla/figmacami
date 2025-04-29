@@ -8,6 +8,8 @@ import { Proyecto } from "../../proyectos/interfaces/proyecto";
 import { routes } from '../../app.routes';
 import { ActivatedRoute } from "@angular/router";
 import { KonvaArrowAttrs, KonvaCircleAttrs, KonvaNode, KonvaRectAttrs } from "../interfaces/bloques";
+import { PageContent } from "../../pizarra/interfaces/pagecontent";
+import { ExportarPizarraService } from "../../pizarra/services/exportar_pizarra.service";
 @Component({
   selector: 'app-boceto',
   templateUrl: './boceto.component.html',
@@ -34,6 +36,8 @@ export class BocetoComponent  {
   currentPageIndex: number = 0;
   pageCount: number = 0;
   pageNames: string[] = ['Página 1'];
+
+  exportService = inject(ExportarPizarraService);
 
   proyectoService= inject( ProyectoService );
   id: string = ''; // ID del proyecto
@@ -499,70 +503,20 @@ export class BocetoComponent  {
     this.selectedShape = null;
   }
 
-  exportImage(): void {
+  async exportImage(): Promise<void> {
     // Exportar todas las páginas
-    this.stages.forEach((stage, index) => {
-      this.drawingService.exportImage(stage, this.transformers[index]);
+    let templates:PageContent[] = [];
+    let paginas:0 = 0;
+    this.stages.forEach(async (stage, index) => {
+       paginas++;
+      templates.push(await this.drawingService.exportImage({ stage, transformer: this.transformers[index] }));
     });
+
+    this.exportService.contenidot(templates, paginas)
+
   }
 
   isActive(value: string, type: 'tool' | 'color' | 'stroke'): boolean {
     return this.drawingService.isActive(value, type, this.currentTool, this.currentColor, this.currentStrokeWidth);
   }
 }
-
-
-
-
-
-/* if (!data) {
-      console.log('Cargando datos manualmente en el lienzo...');
-    
-      // Crear un rectángulo
-      const rect = new Konva.Rect({
-        x: 50,
-        y: 50,
-        width: 100,
-        height: 100,
-        fill: 'red',
-        stroke: 'black',
-        strokeWidth: 2,
-      });
-      layer.add(rect);
-    
-      // Crear un círculo
-      const circle = new Konva.Circle({
-        x: 200,
-        y: 150,
-        radius: 50,
-        fill: 'blue',
-        stroke: 'black',
-        strokeWidth: 2,
-      });
-      layer.add(circle);
-    
-      // Crear un texto
-      const text = new Konva.Text({
-        x: 300,
-        y: 100,
-        text: 'Hola, Konva!',
-        fontSize: 24,
-        fontFamily: 'Calibri',
-        fill: 'green',
-      });
-      layer.add(text);
-    
-      // Crear una flecha
-      const arrow = new Konva.Arrow({
-        points: [400, 200, 500, 250],
-        pointerLength: 10,
-        pointerWidth: 10,
-        fill: 'yellow',
-        stroke: 'black',
-        strokeWidth: 2,
-      });
-      layer.add(arrow);
-    
-      // Dibujar la capa para reflejar los cambios
-      layer.draw();
-    } */

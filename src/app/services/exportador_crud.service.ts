@@ -165,7 +165,7 @@ export class ExportadorCrudService {
        html en base a el siguiente html, es una tabla y quiero adaptarlo a  angular con *ngFor="let registro of registros",
        revisa los <th>  para sabe que  poner en los <td> los th deberian tener alguna de estas propiedades ${this.propiedades} , agrega a los td {{registro.propiedad}}
       no devuelvas explicacion alguna solo el html, no devuelvas nada mas, no quites los id que llegan con las etiquetas, llegara con tres botones editar, eliminar y ver asingales 
-      click()="verRegistro(registro.id)" y click="editarRegistro(registro.id!)" y click="eliminarRegistro(registro.id!)", si no hay un boton de crear agregalo y pon click="crearNuevo()"
+      click()="verRegistro(registro.id!)" y click="editarRegistro(registro.id!)" y click="eliminarRegistro(registro.id!)", si no hay un boton de crear agregalo y pon click="crearNuevo()"
     `) || '';
     data = data.replace(/^```html\s*|\s*```$/g, '');
     return data;
@@ -521,12 +521,15 @@ export class ${nombreBase}viewComponent implements OnInit {
   private async generarHtmlVer(viewData: { html: string; css: string }, nombreBase: string): Promise<string> {
     let data = await this.geminiService.generacionTexto(viewData.html, `devuelve un html en base a el siguiente html, es una vista de un registro,
        busca palabras parecidadas ${this.propiedades} y usa codigo angular para mostrar los datos {{registro.propiedad}},
-       no devuelvas explicacion alguna solo el html,no quites los id que llegan con las etiquetas, no devuelvas nada mas, no devuelvas 
+       no devuelvas explicacion alguna solo el html,no quites los id que llegan con las etiquetas, no devuelvas nada mas,si hay boton de 
+       de volver ponlo con click="volver()"
     `) || '';
     data = data.replace(/^```html\s*|\s*```$/g, '');
     return data;
   }
 
+
+  
   private generarServicio(nombreBase: string): string {
     return `import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';

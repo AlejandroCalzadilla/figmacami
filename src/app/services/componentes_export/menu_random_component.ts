@@ -121,7 +121,7 @@ import { Component } from '@angular/core';
     nombre_archivo_html: nombre_archivo_html,
     componente:componente,
     links,
-    ruta_componente:rutacomponente,
+    ruta_componente:`./${nombre}/pages/${nombre}_page/${nombre}.component`,
     
      
   };
