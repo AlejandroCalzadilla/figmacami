@@ -107,12 +107,12 @@ export function addFormsBlocks(editor: any) {
         label: 'Contenedor de Formulario',
         category: 'Formularios',
         content: `
-          <div style="padding: 20px; border: 2px dashed #ccc; background-color: #f9f9f9; border-radius: 8px;">
+          <form style="padding: 20px; border: 2px dashed #ccc; background-color: #f9f9f9; border-radius: 8px;">
             <h3 style="margin-bottom: 15px; text-align: center; color: #333;">Contenedor de Formulario</h3>
             <div style="min-height: 100px; border: 1px dashed #ddd; padding: 10px; background-color: #fff;">
-              <!-- Aquí se pueden arrastrar los campos de formulario -->
+             
             </div>
-          </div>
+          </form>
         `,
         attributes: { class: 'fa fa-square' }
       });

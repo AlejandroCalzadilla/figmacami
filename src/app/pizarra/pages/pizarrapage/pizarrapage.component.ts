@@ -70,18 +70,14 @@ export class PizarrapageComponent  {
       if (this.proyecto.data) {
         try {
           // Primer parseo: convierte el string JSON externo en un objeto
-         // console.log('Datos del proyecto:', this.proyecto.data);
           const outerData = JSON.parse(this.proyecto.data);
           // Segundo parseo: convierte el string JSON interno en un objeto
           const parsedData = JSON.parse(outerData.data);
-          //console.log('Datos del proyecto parseados:', parsedData);
           // Extrae los html y css
           const pages = [];
           const pagescss = [];
-      
           for (const key in parsedData) {
             if (key.includes('_html')) {
-            //  console.log('HTML encontrado:', key);
               pages.push(parsedData[key]);
             }
             if (key.includes('_css')) {
@@ -92,34 +88,25 @@ export class PizarrapageComponent  {
           
           this.pages = pages;
           this.pagescss = pagescss;
-      
           // Cargamos la primera página si hay alguna
           if (this.pages.length > 0) {
             this.editor.setComponents(this.pages[0]);
             this.editor.setStyle(this.pagescss[0]);
           }
-      
-          //console.log('Páginas cargadas:', this.pages);
         } catch (error) {
           console.error('Error al parsear los datos del proyecto:', error);
         }
       }
-      
-  
       this.initializeSocketConnection();
-  
       const debouncedSendEditorState = this.debounce(() => {
         this.sendEditorState();
       }, 2000);
-  
       this.editor.on('component:update', () => {
         debouncedSendEditorState();
       });
-  
       this.editor.on('change:changesCount', () => {
         debouncedSendEditorState();
       });
-  
       this.botonguardar();
       this.botonExportar();
       this.updatePagination();
@@ -130,7 +117,6 @@ export class PizarrapageComponent  {
       console.error('Error al inicializar GrapesJS:', error);
     }
   }
-
 
   private botonguardar() {
     this.editor.Panels.addButton('options', {

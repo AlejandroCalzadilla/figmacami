@@ -1,4 +1,4 @@
-import { GeneratedComponent } from "../../interfaces/componente_angular";
+import { GeneratedComponent } from "../../pizarra/interfaces/componente_angular";
 
 export function addLinksToMenu(component: GeneratedComponent, links: string[]): void {
     if (component && component.links) {

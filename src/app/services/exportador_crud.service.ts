@@ -1,35 +1,27 @@
 import { inject, Injectable } from '@angular/core';
-import { GeneratedComponent } from '../interfaces/componente_angular';
-import { CrudValidado } from '../interfaces/crud.interface';
+import { GeneratedComponent } from '../pizarra/interfaces/componente_angular';
+import { CrudValidado } from '../pizarra/interfaces/crud.interface';
 import { GeminiService } from './gemini.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ExportadorCrudService {
-
-
-   propiedades!:string;
-   interfaz!:string;
-   propiedadesOriginales!: string;
-  
-   geminiService=inject(GeminiService);
+  propiedades!: string;
+  interfaz!: string;
+  propiedadesOriginales!: string;
+  geminiService = inject(GeminiService);
   async generarComponentesCrud(crud: CrudValidado): Promise<GeneratedComponent[]> {
     try {
       let createComponent!: GeneratedComponent;
       const componentes: GeneratedComponent[] = [];
       const nombreBase = crud.nombre;
-
-      
       if (crud.formCreate) {
-        const data = await this.geminiService.generacionTexto(crud.formCreate.html,`devuelve un string de propiedades en typescript en base a este html,
+        const data = await this.geminiService.generacionTexto(crud.formCreate.html, `devuelve un string de propiedades en typescript en base a este html,
           e las propiedades las encuentras en los label <label>propiedad</label>, no devuelva explicacion alguna solo el codigo
           no devuelvas interfaz eso yo lo ago , solo las propiedades con su tipo de dato y separadas por comas, no devuelvas nada mas, todo en español     
           `);
-         this.interfaz = this.generarInterfaz(nombreBase, data!);
-       
-        console.log(this.interfaz, 'interfaz generada');
-        console.log(this.propiedades, 'propiedades generadas');        
+        this.interfaz = this.generarInterfaz(nombreBase, data!);
         createComponent = await this.generarComponenteCreate(crud.formCreate, nombreBase);
         componentes.push(createComponent);
       }
@@ -37,24 +29,17 @@ export class ExportadorCrudService {
       // Generar componente Edit
       if (crud.formEdit) {
         const editComponent = this.generarComponenteEdit(crud.formEdit, nombreBase);
-       // console.log('componente edit', editComponent);
         editComponent.html = createComponent.html;
         componentes.push(editComponent);
-      }  
-
-      // Generar componente Lista
+      }
       if (crud.indexTable) {
         const listComponent = await this.generarComponenteLista(crud.indexTable, nombreBase);
         componentes.push(listComponent);
-      } 
-
-      // Generar componente Ver
+      }
       if (crud.showRegister) {
-       // console.log('componente view', crud.showRegister);
         const viewComponent = await this.generarComponenteVer(crud.showRegister, nombreBase);
         componentes.push(viewComponent);
-      }  
-      console.log('componentes', componentes);
+      }
       return componentes;
     } catch (error) {
       console.error('Error al generar componentes CRUD:', error);
@@ -62,9 +47,6 @@ export class ExportadorCrudService {
     }
   }
 
-  private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
 
   private generarInterfaz(nombreBase: string, propiedades: string): string {
     console.log(propiedades, 'que propiedades llegan a la interfaz');
@@ -75,30 +57,26 @@ export class ExportadorCrudService {
     ${this.propiedades}
 }`;
   }
-  
+
 
   private async generarComponenteCreate(formData: { html: string; css: string }, nombreBase: string): Promise<GeneratedComponent> {
     const nombreComponente = `${nombreBase}`;
     const parser = new DOMParser();
     const doc = parser.parseFromString(formData.html, 'text/html');
     const form = doc.querySelector('form');
-  
+
     if (!form) {
       throw new Error('No se encontró un formulario en el HTML proporcionado');
     }
-    const inputs = form.querySelectorAll('input, select, textarea');
     let datos = await this.geminiService.generacionTexto(formData.html, `devuelve un html en base a el siguiente html, es un formulario y quiero adaptarlo a angular con [formGroup]="formulario" y (ngSubmit)="crearoeditar()
        formControlName="propiedad" , estas son la propiedades ${this.propiedades} estas debes ponerlas en el formcontrolname formControlName="this.propiedades.propiedadn", estas propiedades en general van a  coincidir con el texto de los labels , <label> propiedad</label>
       no devuelvas explicacion alguna solo el html, no devuelvas nada mas, no quites los id que llegan con las etiquetas
        `) || '';
-  
-    // Limpiar los caracteres ```html y ``` si existen
     datos = datos.replace(/^```html\s*|\s*```$/g, '');
-  
     const interfaz = this.interfaz;
-    const componente = this.generarComponenteFormReactivo( nombreComponente, false);
+    const componente = this.generarComponenteFormReactivo(nombreComponente, false);
     const servicio = this.generarServicio(nombreBase);
-  
+
     return {
       html: datos,
       css: formData.css,
@@ -121,25 +99,18 @@ export class ExportadorCrudService {
   }
 
 
-
-
-
-
   private generarComponenteEdit(formData: { html: string; css: string }, nombreBase: string): GeneratedComponent {
     const nombreComponente = `${nombreBase}`;
-    //nombre componte = crud_1_edit
     const parser = new DOMParser();
     const doc = parser.parseFromString(formData.html, 'text/html');
     const form = doc.querySelector('form');
     if (!form) {
       throw new Error('No se encontró un formulario en el HTML proporcionado');
     }
-
     const inputs = form.querySelectorAll('input, select, textarea');
     const componente = this.generarComponenteFormReactivoEdit(form, nombreComponente, inputs, true);
-    const data: string = this.transformarHtmlAReactivo (formData.html)
     return {
-      html: data,
+      html: "",
       css: formData.css,
       ts: componente,
       nombre: nombreComponente,
@@ -159,21 +130,17 @@ export class ExportadorCrudService {
 
   private async generarComponenteLista(tableData: { html: string; css: string }, nombreBase: string): Promise<GeneratedComponent> {
     const nombreComponente = `${nombreBase}`;
-  
+
     // Extraer la tabla manualmente del string
     const tableMatch = tableData.html.match(/<table[\s\S]*?<\/table>/i);
     if (!tableMatch) {
       throw new Error('No se encontró una tabla en el HTML proporcionado');
     }
-  
     const tablaOriginalHtml = tableMatch[0]; // tabla encontrada como string
     const tablaModificada = await this.modificarTablaHtml(tablaOriginalHtml);
-    
     // Reemplazar en el HTML la tabla original por la tabla modificada
     const html = tableData.html.replace(tablaOriginalHtml, tablaModificada);
-  
     const componente = this.generarComponenteListaTS(tablaOriginalHtml as unknown as HTMLTableElement, nombreComponente);
-  
     return {
       html: html,
       css: tableData.css,
@@ -191,60 +158,37 @@ export class ExportadorCrudService {
       ruta_componente: `./${nombreBase}/pages/${nombreBase}_page/${nombreBase}_page.component`
     };
   }
-  
+
 
   private async modificarTablaHtml(html: string): Promise<string> {
-    // Extraer manualmente los atributos de la tabla del HTML original
-   
-    let data= await this.geminiService.generacionTexto(html,`devuelve un
+    let data = await this.geminiService.generacionTexto(html, `devuelve un
        html en base a el siguiente html, es una tabla y quiero adaptarlo a  angular con *ngFor="let registro of registros",
        revisa los <th>  para sabe que  poner en los <td> los th deberian tener alguna de estas propiedades ${this.propiedades} , agrega a los td {{registro.propiedad}}
       no devuelvas explicacion alguna solo el html, no devuelvas nada mas, no quites los id que llegan con las etiquetas, llegara con tres botones editar, eliminar y ver asingales 
       click()="verRegistro(registro.id)" y click="editarRegistro(registro.id!)" y click="eliminarRegistro(registro.id!)", si no hay un boton de crear agregalo y pon click="crearNuevo()"
     `) || '';
     data = data.replace(/^```html\s*|\s*```$/g, '');
-     return data;
+    return data;
   }
-  
-
-  private getTipoTypeScript(type: string): string {
-    switch (type.toLowerCase()) {
-      case 'number':
-      case 'range':
-        return 'number';
-      case 'checkbox':
-        return 'boolean';
-      case 'date':
-        return 'Date';
-      default:
-        return 'string';
-    }
-  }
-
- 
-
-
-
-
 
   private generarComponenteFormReactivo(
     nombreComponente: string,
     isEdit: boolean
   ): string {
-    
+
     const routeParams = isEdit ? `\n  private route = inject(ActivatedRoute);` : '';
     const routeImports = isEdit ? `\nimport { ActivatedRoute } from '@angular/router';` : '';
-  
-   
-  // Extraer los nombres de las propiedades de this.propiedades
-  const propiedades = this.propiedades.split(',')
-  .map(line => line.trim())
-  .filter(line => line)
-  .map(line => {
-    const [nombre, tipo] = line.split(':').map(part => part.trim());
-    return { nombre, tipo };
-  });
-  
+
+
+    // Extraer los nombres de las propiedades de this.propiedades
+    const propiedades = this.propiedades.split(',')
+      .map(line => line.trim())
+      .filter(line => line)
+      .map(line => {
+        const [nombre, tipo] = line.split(':').map(part => part.trim());
+        return { nombre, tipo };
+      });
+
     return `import { Component, OnInit, inject } from '@angular/core';
   import { FormBuilder, ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
   import { ${nombreComponente}Service } from './../../services/${nombreComponente}.service';
@@ -333,19 +277,19 @@ export class ExportadorCrudService {
     inputs: NodeListOf<Element>,
     isEdit: boolean
   ): string {
-    
+
     const routeParams = isEdit ? `\n  private route = inject(ActivatedRoute);` : '';
     const routeImports = isEdit ? `\nimport { ActivatedRoute } from '@angular/router';` : '';
-  
+
     // Extraer los nombres de las propiedades de this.propiedades
     const propiedades = this.propiedades.split(',')
-  .map(line => line.trim())
-  .filter(line => line)
-  .map(line => {
-    const [nombre, tipo] = line.split(':').map(part => part.trim());
-    return { nombre, tipo };
-  });
-  
+      .map(line => line.trim())
+      .filter(line => line)
+      .map(line => {
+        const [nombre, tipo] = line.split(':').map(part => part.trim());
+        return { nombre, tipo };
+      });
+
     return `import { Component, OnInit, inject } from '@angular/core';
   import { FormBuilder, ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
   import { ${nombreComponente}Service } from './../../services/${nombreComponente}.service';
@@ -419,76 +363,11 @@ export class ExportadorCrudService {
         }
       }
     }
-  
     private generarId(): string {
       return Math.random().toString(36).substring(2) + Date.now().toString(36);
     }
   }`;
   }
-
-
-  private transformarHtmlAReactivo(html: string): string {
-    // Extraer los nombres de las propiedades de this.propiedades
-    const nombresPropiedades = this.propiedades.split('\n')
-      .map(line => line.trim())
-      .filter(line => line)
-      .map(line => line.split(':')[0].trim());
-
-    // Crear un parser para buscar los labels
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-
-    // Añadir formControlName a inputs, selects y textareas usando las propiedades
-    html = html.replace(/<(input|select|textarea)([^>]*)(name|id)="([^"]+)"([^>]*)>/gi, (match, tag, beforeAttr, attrName, attrValue, afterAttr) => {
-      // Revisar si ya tiene formControlName para no duplicar
-      if (match.includes('formControlName')) {
-        return match;
-      }
-      
-      // Buscar el label correspondiente
-     // Buscar el texto del label correspondiente
-    const label = Array.from(doc.querySelectorAll('label')).find(lbl => {
-      return lbl.textContent?.trim().toLowerCase().replace(/\s+/g, '_') === attrValue.toLowerCase();
-    });
-    let nombreCampo = attrValue;
-
-      // Buscar la propiedad correspondiente
-      const propiedad = nombresPropiedades.find(prop => prop.toLowerCase() === nombreCampo.toLowerCase());
-      if (propiedad) {
-        return `<${tag}${beforeAttr} ${attrName}="${propiedad}" formControlName="${propiedad}"${afterAttr}>`;
-      }
-      return match;
-    });
-  
-    // Ahora envolver el form en el [formGroup] y (ngSubmit)
-    html = html.replace(/<form([^>]*)>/i, `<form [formGroup]="formulario" (ngSubmit)="crearoeditar()"$1>`);
-  
-    return html.trim();
-  }
-  
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -556,32 +435,6 @@ export class ${nombreBase}ListComponent implements OnInit {
 }`;
   }
 
-  private camelCase(text: string): string {
-    // Convertir el texto a camelCase usando las propiedades en español
-    return text
-      .toLowerCase()
-      .replace(/[^a-zA-Z0-9]+(.)/g, (_, char) => char.toUpperCase());
-  }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   private async generarComponenteVer(viewData: { html: string; css: string }, nombreBase: string): Promise<GeneratedComponent> {
     const nombreComponente = `${nombreBase}`;
     const parser = new DOMParser();
@@ -593,8 +446,8 @@ export class ${nombreBase}ListComponent implements OnInit {
     }
 
     const componente = this.generarComponenteVerTS(viewElement, nombreComponente);
-    const data: string = await this.generarHtmlVer(viewData,nombreBase)
-   // console.log(viewData.html, 'html de vista')
+    const data: string = await this.generarHtmlVer(viewData, nombreBase)
+    // console.log(viewData.html, 'html de vista')
     return {
       html: data,
       css: viewData.css,
@@ -609,7 +462,7 @@ export class ${nombreBase}ListComponent implements OnInit {
       nombre_archivo_service: `${nombreBase}.service.ts`,
       nombre_archivo_interface: `${nombreBase}.interface.ts`,
       componente: true,
-      form:'view',
+      form: 'view',
       ruta_componente: `./${nombreBase}/components/${nombreBase}_view/${nombreBase}_view.component`
     };
   }
@@ -666,23 +519,13 @@ export class ${nombreBase}viewComponent implements OnInit {
 
 
   private async generarHtmlVer(viewData: { html: string; css: string }, nombreBase: string): Promise<string> {
-    let data= await this.geminiService.generacionTexto(viewData.html,`devuelve un html en base a el siguiente html, es una vista de un registro,
+    let data = await this.geminiService.generacionTexto(viewData.html, `devuelve un html en base a el siguiente html, es una vista de un registro,
        busca palabras parecidadas ${this.propiedades} y usa codigo angular para mostrar los datos {{registro.propiedad}},
        no devuelvas explicacion alguna solo el html,no quites los id que llegan con las etiquetas, no devuelvas nada mas, no devuelvas 
     `) || '';
     data = data.replace(/^```html\s*|\s*```$/g, '');
     return data;
   }
-
-
-
-
-
-
-
-
-
-
 
   private generarServicio(nombreBase: string): string {
     return `import { Injectable } from '@angular/core';

@@ -4,6 +4,7 @@ import {
     createUserContent,
     createPartFromUri,
   } from "@google/genai";
+import { environment } from "../../environments/environment.prod";
 @Injectable({
 providedIn: "root",
 })
@@ -13,7 +14,7 @@ export class GeminiService {
 
     genIA: any;
     model: any;
-   ai = new GoogleGenAI({ apiKey: "AIzaSyBto5nWp2V-GiM4aRkPNr_YpFfo060fkf4" });
+   ai = new GoogleGenAI({ apiKey: environment.key });
 
     
 

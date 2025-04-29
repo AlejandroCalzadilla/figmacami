@@ -1,4 +1,4 @@
-import { GeneratedComponent } from './../../interfaces/componente_angular';
+import { GeneratedComponent } from '../../pizarra/interfaces/componente_angular';
 
 export function generateMenuComponent(): GeneratedComponent {
   const nombre = 'menurandom';

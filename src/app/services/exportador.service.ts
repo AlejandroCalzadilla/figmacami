@@ -1,22 +1,22 @@
 import { Injectable } from "@angular/core";
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
-import { packageJson } from "../../exportar/services/archivos_angular/package_json";
-import { angularJson } from "../../exportar/services/archivos_angular/angular_json";
-import { stylesCss } from "../../exportar/services/archivos_angular/src_styles_css";
-import { environmentProdTs } from "../../exportar/services/archivos_angular/src_enviroments_enviromentprod";
-import { mainTs } from "../../exportar/services/archivos_angular/src_main_ts";
-import { tsconfigJson } from "../../exportar/services/archivos_angular/tsconfigJson";
-import { indexHtml } from "../../exportar/services/archivos_angular/src_index_html";
-import { tsconfigAppJson } from "../../exportar/services/archivos_angular/tsconfigAppJson";
-import { tsconfigSpecJson } from "../../exportar/services/archivos_angular/tsconfigSpecJson";
-import { readmeMd } from "../../exportar/services/archivos_angular/readmeMd";
-import { appComponentCss } from "../../exportar/services/archivos_angular/src_app_appComponentCss";
-import { appComponentHtml } from "../../exportar/services/archivos_angular/src_app_appComponentHtml";
-import { environmentTs } from "../../exportar/services/archivos_angular/src_enviroments_enviroment";
-import { appComponentTs } from "../../exportar/services/archivos_angular/src_app_appComponentTs";
-import { appConfigTs } from "../../exportar/services/archivos_angular/src_app_appConfig";
-import { GeneratedComponent } from "../interfaces/componente_angular";
+import { packageJson } from "./archivos_angular/package_json";
+import { angularJson } from "./archivos_angular/angular_json";
+import { stylesCss } from "./archivos_angular/src_styles_css";
+import { environmentProdTs } from "./archivos_angular/src_enviroments_enviromentprod";
+import { mainTs } from "./archivos_angular/src_main_ts";
+import { tsconfigJson } from "./archivos_angular/tsconfigJson";
+import { indexHtml } from "./archivos_angular/src_index_html";
+import { tsconfigAppJson } from "./archivos_angular/tsconfigAppJson";
+import { tsconfigSpecJson } from "./archivos_angular/tsconfigSpecJson";
+import { readmeMd } from "./archivos_angular/readmeMd";
+import { appComponentCss } from "./archivos_angular/src_app_appComponentCss";
+import { appComponentHtml } from "./archivos_angular/src_app_appComponentHtml";
+import { environmentTs } from "./archivos_angular/src_enviroments_enviroment";
+import { appComponentTs } from "./archivos_angular/src_app_appComponentTs";
+import { appConfigTs } from "./archivos_angular/src_app_appConfig";
+import { GeneratedComponent } from "../pizarra/interfaces/componente_angular";
 
 @Injectable({
   providedIn: 'root'
@@ -121,15 +121,12 @@ export class ExportadorService {
         }
         this.appRoutesTs = this.addRouteToAppRoutesTs(this.appRoutesTs, componente.ruta.path, componente.nombreClaseComponent, componente.ruta_componente);
       });
-
       //console.log(this.appRoutesTs, "rutas")
       zip.file('src/app/app.routes.ts', this.appRoutesTs); // Aquí se agrega la ruta al archivo app.routes.ts
-
       // Generar el archivo ZIP
       const content = await zip.generateAsync({ type: 'blob' });
       saveAs(content, 'generico-with-sidebar.zip');
       return true;
-
     }
     catch (error) {
       console.error('Error al generar el proyecto:', error);
