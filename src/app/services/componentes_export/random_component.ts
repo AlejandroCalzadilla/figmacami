@@ -1,4 +1,4 @@
-import { GeneratedComponent } from "../../pizarra/interfaces/componente_angular";
+import { GeneratedComponent } from "../../web/pizarra/interfaces/componente_angular";
 
 export function generateRandomComponent(html_contenido: string, css_contenido: string, pageNumber: number): GeneratedComponent
    {

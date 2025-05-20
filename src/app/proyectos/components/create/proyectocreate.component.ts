@@ -47,6 +47,11 @@ export default class ProyectocreateComponent {
             console.log('Redirigiendo a la página de figma...');
              this.router.navigate(['/pizarra',response.id ]);
            }  
+          else if(this.proyecto.tipo === TipoProyecto.FLUUTERFIGMA ){
+              // Aquí puedes redirigir al usuario a la página de figma
+              console.log('Redirigiendo a la página de figma...');
+              this.router.navigate(['/pizarraflutter',response.id ]);
+            }
         // Aquí puedes redirigir al usuario o mostrar un mensaje de éxito
       },
       (error) => {

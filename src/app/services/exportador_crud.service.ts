@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { GeneratedComponent } from '../pizarra/interfaces/componente_angular';
-import { CrudValidado } from '../pizarra/interfaces/crud.interface';
+import { GeneratedComponent } from '../web/pizarra/interfaces/componente_angular';
+import { CrudValidado } from '../web/pizarra/interfaces/crud.interface';
 import { GeminiService } from './gemini.service';
 
 @Injectable({

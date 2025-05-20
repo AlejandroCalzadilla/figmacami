@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import Konva from 'konva';
-import { GeminiService } from '../../services/gemini.service';
+import { GeminiService } from '../../../services/gemini.service';
 import { PageContent } from '../../pizarra/interfaces/pagecontent';
 import { Page } from 'grapesjs';
 

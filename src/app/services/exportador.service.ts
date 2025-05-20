@@ -16,7 +16,7 @@ import { appComponentHtml } from "./archivos_angular/src_app_appComponentHtml";
 import { environmentTs } from "./archivos_angular/src_enviroments_enviroment";
 import { appComponentTs } from "./archivos_angular/src_app_appComponentTs";
 import { appConfigTs } from "./archivos_angular/src_app_appConfig";
-import { GeneratedComponent } from "../pizarra/interfaces/componente_angular";
+import { GeneratedComponent } from "../web/pizarra/interfaces/componente_angular";
 
 @Injectable({
   providedIn: 'root'

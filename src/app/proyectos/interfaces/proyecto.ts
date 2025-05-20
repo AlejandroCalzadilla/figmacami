@@ -3,7 +3,9 @@ import { ProyectoToUser } from "./proyectotouser";
 
 export enum TipoProyecto {
     BOCETO = 'boceto',
-    FIGMA = 'figma'
+    FIGMA = 'figma',
+
+    FLUUTERFIGMA = 'flutterfigma',
 }
 export interface Proyecto {
     id?: string;

@@ -1,12 +1,12 @@
 import { inject, Injectable } from '@angular/core';
 import { PageContent } from '../interfaces/pagecontent';
-import { generateMenuComponent } from '../../services/componentes_export/menu_random_component';
-import { generateRandomComponent } from '../../services/componentes_export/random_component';
-import { addLinksToMenu, assignLinksToMenuComponent } from '../../services/componentes_export/añadir_links_menus';
-import { ExportadorService } from '../../services/exportador.service';
+import { generateMenuComponent } from '../../../services/componentes_export/menu_random_component';
+import { generateRandomComponent } from '../../../services/componentes_export/random_component';
+import { addLinksToMenu, assignLinksToMenuComponent } from '../../../services/componentes_export/añadir_links_menus';
+import { ExportadorService } from '../../../services/exportador.service';
 import { GeneratedComponent } from '../interfaces/componente_angular';
 import { CrudValidado } from '../interfaces/crud.interface';
-import { ExportadorCrudService } from '../../services/exportador_crud.service';
+import { ExportadorCrudService } from '../../../services/exportador_crud.service';
 
 interface Crud {
   formCreate: { html: string; css: string } | null;
@@ -19,7 +19,7 @@ interface Crud {
 @Injectable({
   providedIn: 'root',
 })
-export class ExportarPizarraService {
+export class ExportarPizarraServiceFlutter {
   private exportadorangular = inject(ExportadorService);
   private exportadorCrud = inject(ExportadorCrudService);
   // Contadores de componentes por tipo

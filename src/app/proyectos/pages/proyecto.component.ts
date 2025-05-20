@@ -44,9 +44,14 @@ export default class ProyectoComponent {
          }
          if( proyecto.tipo === TipoProyecto.FIGMA ){
          this.route.navigate(['/pizarra',proyecto.id]); 
-        }  
+        } 
+            if( proyecto.tipo === TipoProyecto.FLUUTERFIGMA ){
+                this.route.navigate(['/pizarraflutter',proyecto.id]); 
+            }
+            console.log("Proyecto dibujado:", proyecto); 
     
     }
+    
 
     create(){
         

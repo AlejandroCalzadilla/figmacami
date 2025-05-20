@@ -3,13 +3,13 @@ import { AfterViewInit, Component, ElementRef, HostListener, ViewChild, inject }
 import Konva from 'konva';
 import { DrawingService } from '../services/drawing.service';
 import { ChangeDetectorRef } from '@angular/core';
-import { ProyectoService } from '../../proyectos/services/proyecto.service';
-import { Proyecto } from "../../proyectos/interfaces/proyecto";
-import { routes } from '../../app.routes';
+import { ProyectoService } from '../../../proyectos/services/proyecto.service';
+import { Proyecto } from "../../../proyectos/interfaces/proyecto";
+import { routes } from '../../../app.routes';
 import { ActivatedRoute } from "@angular/router";
 import { KonvaArrowAttrs, KonvaCircleAttrs, KonvaNode, KonvaRectAttrs } from "../interfaces/bloques";
 import { PageContent } from "../../pizarra/interfaces/pagecontent";
-import { ExportarPizarraService } from "../../pizarra/services/exportar_pizarra.service";
+import { ExportarPizarraService } from "../../../web/pizarra/services/exportarpizarra.service";
 @Component({
   selector: 'app-boceto',
   templateUrl: './boceto.component.html',

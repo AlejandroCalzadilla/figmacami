@@ -1,8 +1,9 @@
 import { Routes } from '@angular/router';
-import { PizarrapageComponent } from './pizarra/pages/pizarrapage/pizarrapage.component';
+import { PizarrapageComponent } from './web/pizarra/pages/pizarrapage/pizarrapage.component';
 import { LoginComponent } from './auth/pages/login/login.component';
 import ProyectoComponent from './proyectos/pages/proyecto.component';
-import { BocetoComponent } from './boceto/pages/boceto.component';
+import { BocetoComponent } from './web/boceto/pages/boceto.component';
+import { PizarraFlutterpageComponent } from './movil/pizarra/pages/pizarrapage/pizarrapageflutter.component';
 
 export const routes: Routes = [
     {
@@ -14,6 +15,10 @@ export const routes: Routes = [
     {
         path: 'pizarra/:id',component: PizarrapageComponent
     },
+
+     {
+        path: 'pizarraflutter/:id',component: PizarraFlutterpageComponent    },
+
 
     {
         path:'boceto/:id',component:BocetoComponent
@@ -38,7 +43,7 @@ export const routes: Routes = [
  
         path:'register2', loadComponent: () => import('./auth/pages/register/register.component')
     },
-
+    
 
     {path:'**', redirectTo: 'login', pathMatch: 'full'},
 
