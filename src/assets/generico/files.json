@@ -1,9 +1,0 @@
-[
-    "src/",
-    "src/app/",
-    "src/app/app.module.ts",
-    "src/app/app.component.ts",
-    "src/app/app.component.html",
-    "src/app/app.component.css",
-    "src/app/components/"
-  ]

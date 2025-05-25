@@ -1,4 +1,4 @@
-import {  Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import grapesjs from 'grapesjs';
 import presetWebpage from 'grapesjs-preset-webpage';
 import { addFormsBlocks } from '../../components/bloques/formularios';
@@ -16,14 +16,15 @@ import { addFlutterWidgetComponents } from '../../components/flutter/widgets';
 import { addFlutterInputComponents } from '../../components/flutter/inputs';
 import { addFlutterNavigationComponents } from '../../components/flutter/navigation';
 import { addFlutterMaterialComponents } from '../../components/flutter/material';
-import { GeminiService } from '../../../../services/gemini.service';
+import { files, GeminiService } from '../../../../services/gemini.service';
+import { ExportadorFlutterService } from '../../../../services/exportador_flutter.service';
 @Component({
   selector: 'app-pizarrapageflutter',
   imports: [CommonModule],
   templateUrl: './pizarrapageflutter.component.html',
   styleUrl: './pizarrapageflutter.component.css'
 })
-export class PizarraFlutterpageComponent  {
+export class PizarraFlutterpageComponent {
   editor: any;
   private pages: string[] = ['<p>Page 1</p>'];
   private pagescss: string[] = ['<style>body{background-color: #fff;}</style>'];
@@ -35,9 +36,10 @@ export class PizarraFlutterpageComponent  {
   private id!: string;
   private proyecto!: Proyecto;
   private route = inject(ActivatedRoute);
-  private exportarpizaarraservice=inject(ExportarPizarraServiceFlutter);
+  private exportarpizaarraservice = inject(ExportarPizarraServiceFlutter);
+  private exportarFlutterService = inject(ExportadorFlutterService);
   private geminiService = inject(GeminiService);
-  
+
 
   ngOnInit(): void {
     // Suscribirse a los parámetros de la ruta
@@ -73,35 +75,35 @@ export class PizarraFlutterpageComponent  {
         storageManager: false,
         fromElement: false,
         deviceManager: {
-        devices: [
-        
-          {
-            name: 'Desktop',
-            width: '1200px',
-            widthMedia: '1200px',
-          },
-          {
-            name: 'Tablet landscape',
-            width: '1024px',
-            widthMedia: '1024px',
-          },
-          {
-            name: 'Tablet',
-            width: '768px',
-            widthMedia: '992px',
-          },
-          {
-            name: 'Mobile portrait',
-            width: '412px',
-            widthMedia: '915px',
-          },
-        ],
-      },
-        
+          devices: [
+
+            {
+              name: 'Desktop',
+              width: '1200px',
+              widthMedia: '1200px',
+            },
+            {
+              name: 'Tablet landscape',
+              width: '1024px',
+              widthMedia: '1024px',
+            },
+            {
+              name: 'Tablet',
+              width: '768px',
+              widthMedia: '992px',
+            },
+            {
+              name: 'Mobile portrait',
+              width: '412px',
+              widthMedia: '915px',
+            },
+          ],
+        },
+
       });
-       // Poner el editor en modo móvil por defecto
-    
-         this.editor.setDevice('Mobile portrait');
+      // Poner el editor en modo móvil por defecto
+
+      this.editor.setDevice('Mobile portrait');
 
       if (this.proyecto.data) {
         try {
@@ -117,11 +119,11 @@ export class PizarraFlutterpageComponent  {
               pages.push(parsedData[key]);
             }
             if (key.includes('_css')) {
-            //  console.log('CSS encontrado:', key);
+              //  console.log('CSS encontrado:', key);
               pagescss.push(parsedData[key]);
             }
           }
-          
+
           this.pages = pages;
           this.pagescss = pagescss;
           // Cargamos la primera página si hay alguna
@@ -145,6 +147,7 @@ export class PizarraFlutterpageComponent  {
       });
       this.botonguardar();
       this.botonExportar();
+      this.botonExportarFlutter();
       this.updatePagination();
 
       addFlutterLayoutComponents(this.editor);
@@ -152,12 +155,12 @@ export class PizarraFlutterpageComponent  {
       addFlutterInputComponents(this.editor);
       addFlutterNavigationComponents(this.editor);
       addFlutterMaterialComponents(this.editor);
-      
-      
+
+
       this.addFlutterMenuPanel(); // <-- Añadir aquí la función del menú Flutter
-    /*   addFormsBlocks(this.editor);
-      addCrudsBlocks(this.editor);
-      addComponentesBlocks(this.editor); */
+      /*   addFormsBlocks(this.editor);
+        addCrudsBlocks(this.editor);
+        addComponentesBlocks(this.editor); */
     } catch (error) {
       console.error('Error al inicializar GrapesJS:', error);
     }
@@ -171,30 +174,30 @@ export class PizarraFlutterpageComponent  {
       attributes: { title: 'guardar' },
       active: false,
     });
-  
+
     this.editor.Commands.add('mi-comando', {
       run: (editor: any, sender: any) => {
         this.miFuncionPersonalizada();
       },
     });
   }
-  
+
   private miFuncionPersonalizada() {
     // Asegúrate de guardar el contenido actual de la página activa antes de procesar todas las páginas
     this.saveCurrentPage();
-  
+
     // Construir el contenido de todas las páginas
     const allPagesContent = this.pages.map((page, index) => {
       const html = this.pages[index]; // Obtener el HTML almacenado de la página
       const css = this.pagescss[index]; // Obtener el CSS almacenado de la página
       return { [`page${index + 1}_html`]: html, [`page${index + 1}_css`]: css };
     });
-  
+
     // Convierte el contenido a un JSON string
     const jsonData = JSON.stringify(
       allPagesContent.reduce((acc, pageContent) => ({ ...acc, ...pageContent }), {})
     );
-  
+
     // Enviar los datos al servidor
     this.proyectoService.UpdateData(this.id, jsonData).subscribe(
       (resp) => {
@@ -204,13 +207,76 @@ export class PizarraFlutterpageComponent  {
         //console.error('Error al enviar los datos al servidor:', err);
       }
     );
-  } 
+  }
 
 
 
 
-  
 
+
+  private botonExportarFlutter() {
+    this.editor.Panels.addButton('options', {
+      id: 'mi-boton-exportar-flutter',
+      className: 'fa-brands fa-flutter',
+      command: 'mi-exportar-flutter',
+      attributes: { title: 'exportar-flutter' },
+      active: false,
+    });
+
+    this.editor.Commands.add('mi-exportar-flutter', {
+      run: (editor: any, sender: any) => {
+        this.miFuncionPersonalizada3();
+      },
+    });
+  }
+
+  private miFuncionPersonalizada3() {
+    this.saveCurrentPage(); // <-- Guarda la página actual antes de exportar
+    const totalPages = this.pages.length;
+    const allPagesContent: PageContent[] = [];
+
+    for (let i = 0; i < totalPages; i++) {
+      // Obtener el contenido directamente de las páginas almacenadas
+      //console.log('pagina:', this.pages[i]);
+      const html = this.pages[i];
+      const css = this.pagescss[i];
+
+      // Agregar el contenido al array
+      allPagesContent.push({ html, css });
+    }
+
+    this.pruebaq(allPagesContent, totalPages);
+  }
+
+  private async pruebaq(contenido: PageContent[], totalPages: number) {
+    // Procesar todas las páginas y enviar cada una a Gemini
+
+    console.log('Contenido de todas las páginas:', contenido);
+    let componentes:files[] = [];
+    for (let i = 0; i < totalPages; i++) {
+      const html = contenido[i].html;
+      const css = contenido[i].css;
+      //console.log(`HTML para página ${i + 1}:`, html);
+      //console.log(`CSS para página ${i + 1}:`, css);
+      try {
+        componentes.push (await this.geminiService.textoAHtmlFlutter(html, css));
+        //console.log(`Flutter code para página ${i + 1}:`, flutterCode);
+      } catch (e) {
+        console.error(`Error procesando página ${i + 1} con GeminiService:`, e);
+      }
+    }
+    // Validación de los componentes antes de exportar
+    const valid = componentes.every(
+      c => c && typeof c.classname === 'string' && typeof c.content === 'string'
+    );
+    if (!valid) {
+      console.error('Error: Algún componente no tiene la estructura correcta:', componentes);
+      alert('Error: Algún componente generado no tiene la estructura correcta. Revisa la consola para más detalles.');
+      return;
+    }
+    console.log('Componentes generados:', componentes);
+    this.exportarFlutterService.crearArchivosYDescargarZipFlutter(componentes);
+  }
 
   private botonExportar() {
     this.editor.Panels.addButton('options', {
@@ -220,33 +286,33 @@ export class PizarraFlutterpageComponent  {
       attributes: { title: 'exportar' },
       active: false,
     });
-  
+
     this.editor.Commands.add('mi-exportar', {
       run: (editor: any, sender: any) => {
         this.miFuncionPersonalizada2();
       },
     });
   }
-  
+
   private miFuncionPersonalizada2() {
     const totalPages = this.pages.length;
     const allPagesContent: PageContent[] = [];
-  
+
     for (let i = 0; i < totalPages; i++) {
       // Obtener el contenido directamente de las páginas almacenadas
       const html = this.pages[i];
       const css = this.pagescss[i];
-  
+
       // Agregar el contenido al array
       allPagesContent.push({ html, css });
     }
-  
-   // console.log('Contenido de todas las páginas como JSON:', allPagesContent);
+
+    // console.log('Contenido de todas las páginas como JSON:', allPagesContent);
     this.prueba(allPagesContent, totalPages);
   }
 
-  private prueba(contenido:PageContent[], totalPages: number){
-     this.exportarpizaarraservice.contenidot(contenido, totalPages);
+  private prueba(contenido: PageContent[], totalPages: number) {
+    this.exportarpizaarraservice.contenidot(contenido, totalPages);
   }
 
 
@@ -346,10 +412,10 @@ export class PizarraFlutterpageComponent  {
       timeout = setTimeout(() => func(...args), wait);
     };
   }
-/* sockets----------------------------- */
+  /* sockets----------------------------- */
 
 
-  
+
 
 
 
@@ -480,7 +546,7 @@ export class PizarraFlutterpageComponent  {
             if (btn) (btn as HTMLElement).classList.remove('gjs-pn-active');
           });
 
-          
+
           // Botón Enviar: añade una tarjeta con imagen y texto al lienzo
           const sendBtn = document.getElementById('flutter-assistant-send');
           if (sendBtn) {
@@ -488,8 +554,14 @@ export class PizarraFlutterpageComponent  {
               const textarea = document.getElementById('flutter-assistant-textarea') as HTMLTextAreaElement;
               if (textarea && textarea.value.trim()) {
                 try {
-                  const html = await this.geminiService.generacionHtmlFlutter(textarea.value.trim());
-                  console.log('HTML generado:', html);
+                  let html = await this.geminiService.generacionHtmlFlutter(textarea.value.trim());
+                  // Limpiar delimitadores de bloque de código (```html ... ```)
+                  if (html) {
+                    html = html.replace(/^```html\s*/i, '').replace(/```\s*$/i, '');
+                  } else {
+                    html = '';
+                  }
+                 // console.log('HTML generado:', html);
                   this.editor.addComponents(html);
                   textarea.value = '';
                 } catch (e) {
@@ -504,7 +576,7 @@ export class PizarraFlutterpageComponent  {
             let mediaRecorder: MediaRecorder | null = null;
             let audioChunks: BlobPart[] = [];
             let isRecording = false;
-          
+
             audioBtn.addEventListener('click', async () => {
               const btn = audioBtn as HTMLButtonElement;
               if (!isRecording) {
@@ -524,7 +596,12 @@ export class PizarraFlutterpageComponent  {
                     (audioBtn as HTMLButtonElement).disabled = true;
                     (audioBtn as HTMLButtonElement).innerHTML = `<i class="fa fa-spinner fa-spin"></i>`;
                     try {
-                      const html = await this.geminiService.audioAHtmlFlutter(audioFile);
+                      let html = await this.geminiService.audioAHtmlFlutter(audioFile);
+                      if (html) {
+                        html = html.replace(/^```html\s*/i, '').replace(/```\s*$/i, '');
+                      } else {
+                        html = '';
+                      }
                       this.editor.addComponents(html);
                     } catch (e) {
                       alert('Error procesando el audio con GeminiService');

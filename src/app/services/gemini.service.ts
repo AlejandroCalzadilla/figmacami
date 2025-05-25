@@ -129,4 +129,45 @@ export class GeminiService {
     return response.text ?? '';
   }
 
+
+  async textoAHtmlFlutter(html: string, css: string): Promise<files> {
+    // Generar un nombre de componente aleatorio
+    const randomStr = Math.random().toString(36).substring(2, 10);
+    const nombreComponente = `Componente${randomStr}`;
+    const prompt = `Eres un experto en Flutter 3 y Material Design 3.
+     Recibirás un HTML y CSS que representan el diseño visual de una pantalla
+      (como si fuera exportado desde Figma). Tu tarea es generar el código Flutter equivalente, 
+      usando widgets y estilos para que el resultado se vea lo más idéntico posible al renderizado del HTML+CSS en el navegador. 
+      No generes lógica, solo la vista. El código debe estar contenido en una clase llamada ${nombreComponente}, 
+      no olivdes su constructor. No expliques nada, solo devuelve el código Flutter completo de la clase.`;
+    const response = await this.ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: [
+        createUserContent([
+          html, css, prompt,
+        ]),
+      ],
+    });
+    let flutterCode = response.text ?? '';
+    // Limpiar delimitadores de bloque de código (```dart ... ```
+    flutterCode = flutterCode.replace(/^```dart\s*/i, '').replace(/```\s*$/i, '');
+    return {
+      classname: nombreComponente,
+      content: flutterCode,
+     
+    };
+  }
+
+
+}
+
+
+
+
+
+
+export interface files {
+   classname: string;
+  content: string;
+ 
 }
