@@ -394,8 +394,9 @@ export class DrawingService {
 
     async procesarImagen(file: File): Promise<PageContent> {
         try {
-            const htmlCssGenerado: string = await this.geminiService.textoAImagen(file);
-            console.log('HTML y CSS generados:', htmlCssGenerado);    
+           // const htmlCssGenerado: string = await this.geminiService.textoAImagen(file);
+            const htmlCssGenerado: string = "dad";
+           console.log('HTML y CSS generados:', htmlCssGenerado);    
              // Filtrar el contenido dentro de ```html``` y ```css```
          
          const htmlMatch = htmlCssGenerado.match(/```html\s*([\s\S]*?)\s*```/);

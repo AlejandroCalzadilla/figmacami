@@ -4,6 +4,7 @@ import { LoginComponent } from './auth/pages/login/login.component';
 import ProyectoComponent from './proyectos/pages/proyecto.component';
 import { BocetoComponent } from './web/boceto/pages/boceto.component';
 import { PizarraFlutterpageComponent } from './movil/pizarra/pages/pizarrapage/pizarrapageflutter.component';
+import { PizarraFlutterManualComponent } from './movil/vacio/pages/pizarraflutter.component';
 
 export const routes: Routes = [
     {
@@ -32,13 +33,22 @@ export const routes: Routes = [
         path: 'createproyecto', loadComponent: () => import('./proyectos/components/create/proyectocreate.component')
     },
 
-   
+    {
+        path:'ejecutarweb', loadComponent: () => import('./pruebas_ejecucion_web/pruebas_web.component')
+    },
 
     {
  
         path:'register', loadComponent: () => import('./auth/pages/register/register.component')
     },
 
+    {
+        path:'pizarraf',component: PizarraFlutterManualComponent
+    },
+
+   
+
+   
     {
  
         path:'register2', loadComponent: () => import('./auth/pages/register/register.component')

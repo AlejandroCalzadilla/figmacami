@@ -1,13 +1,9 @@
 import { Component, inject } from '@angular/core';
 import grapesjs from 'grapesjs';
-import presetWebpage from 'grapesjs-preset-webpage';
-import { addFormsBlocks } from '../../components/bloques/formularios';
-import { addCrudsBlocks } from '../../components/bloques/cruds';
-import { addComponentesBlocks } from '../../components/bloques/components';
 import { CommonModule } from '@angular/common';
 import { io } from 'socket.io-client';
 import { ProyectoService } from './../../../../proyectos/services/proyecto.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Proyecto } from '../../../../proyectos/interfaces/proyecto';
 import { ExportarPizarraServiceFlutter } from '../../services/exportar_pizarra.service';
 import { PageContent } from '../../interfaces/pagecontent';
@@ -17,7 +13,11 @@ import { addFlutterInputComponents } from '../../components/flutter/inputs';
 import { addFlutterNavigationComponents } from '../../components/flutter/navigation';
 import { addFlutterMaterialComponents } from '../../components/flutter/material';
 import { files, GeminiService } from '../../../../services/gemini.service';
-import { ExportadorFlutterService } from '../../../../services/exportador_flutter.service';
+import { ExportadorFlutterService } from '../../../../services/movil/exportador_flutter.service';
+import { addFlutterMenuPanel } from '../../components/flutter/flutter-menu-panel.util';
+import { IframeDataService } from '../../../../services/movil/iframe-data.service';
+import { GistService } from '../../../../services/movil/gist.service';
+import { environment } from '../../../../../environments/environment.prod';
 @Component({
   selector: 'app-pizarrapageflutter',
   imports: [CommonModule],
@@ -39,6 +39,11 @@ export class PizarraFlutterpageComponent {
   private exportarpizaarraservice = inject(ExportarPizarraServiceFlutter);
   private exportarFlutterService = inject(ExportadorFlutterService);
   private geminiService = inject(GeminiService);
+
+  private iframeDataService = inject(IframeDataService);
+
+  private routes = inject(Router)
+  private gistService = inject(GistService)
 
 
   ngOnInit(): void {
@@ -78,33 +83,17 @@ export class PizarraFlutterpageComponent {
           devices: [
 
             {
-              name: 'Desktop',
-              width: '1200px',
-              widthMedia: '1200px',
-            },
-            {
-              name: 'Tablet landscape',
-              width: '1024px',
-              widthMedia: '1024px',
-            },
-            {
-              name: 'Tablet',
-              width: '768px',
-              widthMedia: '992px',
-            },
-            {
               name: 'Mobile portrait',
-              width: '412px',
-              widthMedia: '915px',
+              width: '393px',
+              widthMedia: '393px',
+
             },
           ],
         },
 
       });
       // Poner el editor en modo móvil por defecto
-
       this.editor.setDevice('Mobile portrait');
-
       if (this.proyecto.data) {
         try {
           // Primer parseo: convierte el string JSON externo en un objeto
@@ -119,11 +108,9 @@ export class PizarraFlutterpageComponent {
               pages.push(parsedData[key]);
             }
             if (key.includes('_css')) {
-              //  console.log('CSS encontrado:', key);
               pagescss.push(parsedData[key]);
             }
           }
-
           this.pages = pages;
           this.pagescss = pagescss;
           // Cargamos la primera página si hay alguna
@@ -146,7 +133,7 @@ export class PizarraFlutterpageComponent {
         debouncedSendEditorState();
       });
       this.botonguardar();
-      this.botonExportar();
+      //this.botonExportar();
       this.botonExportarFlutter();
       this.updatePagination();
 
@@ -155,16 +142,18 @@ export class PizarraFlutterpageComponent {
       addFlutterInputComponents(this.editor);
       addFlutterNavigationComponents(this.editor);
       addFlutterMaterialComponents(this.editor);
-
-
-      this.addFlutterMenuPanel(); // <-- Añadir aquí la función del menú Flutter
-      /*   addFormsBlocks(this.editor);
-        addCrudsBlocks(this.editor);
-        addComponentesBlocks(this.editor); */
+      addFlutterMenuPanel(this.editor, this.geminiService); // <-- Ahora importado y llamado aquí
     } catch (error) {
       console.error('Error al inicializar GrapesJS:', error);
     }
   }
+
+
+  ngOnDestroy() {
+    const panel = document.getElementById('flutter-menu-panel');
+    if (panel) panel.remove();
+  }
+
 
   private botonguardar() {
     this.editor.Panels.addButton('options', {
@@ -185,34 +174,20 @@ export class PizarraFlutterpageComponent {
   private miFuncionPersonalizada() {
     // Asegúrate de guardar el contenido actual de la página activa antes de procesar todas las páginas
     this.saveCurrentPage();
-
     // Construir el contenido de todas las páginas
     const allPagesContent = this.pages.map((page, index) => {
       const html = this.pages[index]; // Obtener el HTML almacenado de la página
       const css = this.pagescss[index]; // Obtener el CSS almacenado de la página
       return { [`page${index + 1}_html`]: html, [`page${index + 1}_css`]: css };
     });
-
     // Convierte el contenido a un JSON string
     const jsonData = JSON.stringify(
       allPagesContent.reduce((acc, pageContent) => ({ ...acc, ...pageContent }), {})
     );
-
     // Enviar los datos al servidor
-    this.proyectoService.UpdateData(this.id, jsonData).subscribe(
-      (resp) => {
-        //console.log('Respuesta del servidor en UpdateData:', resp);
-      },
-      (err) => {
-        //console.error('Error al enviar los datos al servidor:', err);
-      }
-    );
+    this.proyectoService.UpdateData(this.id, jsonData)
+
   }
-
-
-
-
-
 
   private botonExportarFlutter() {
     this.editor.Panels.addButton('options', {
@@ -234,38 +209,65 @@ export class PizarraFlutterpageComponent {
     this.saveCurrentPage(); // <-- Guarda la página actual antes de exportar
     const totalPages = this.pages.length;
     const allPagesContent: PageContent[] = [];
-
     for (let i = 0; i < totalPages; i++) {
-      // Obtener el contenido directamente de las páginas almacenadas
-      //console.log('pagina:', this.pages[i]);
       const html = this.pages[i];
       const css = this.pagescss[i];
-
-      // Agregar el contenido al array
       allPagesContent.push({ html, css });
     }
 
-    this.pruebaq(allPagesContent, totalPages);
+    // MODAL para elegir opción
+    const existingModal = document.getElementById('modal-flutter-export');
+    if (existingModal) existingModal.remove();
+    const modal = document.createElement('div');
+    modal.id = 'modal-flutter-export';
+    modal.style.position = 'fixed';
+    modal.style.top = '0';
+    modal.style.left = '0';
+    modal.style.width = '100vw';
+    modal.style.height = '100vh';
+    modal.style.background = 'rgba(0,0,0,0.35)';
+    modal.style.display = 'flex';
+    modal.style.alignItems = 'center';
+    modal.style.justifyContent = 'center';
+    modal.style.zIndex = '99999';
+    modal.innerHTML = `
+      <div style="background:#fff;padding:32px 28px;border-radius:14px;box-shadow:0 4px 24px rgba(0,0,0,0.18);min-width:320px;max-width:90vw;text-align:center;">
+        <h2 style="margin-bottom:18px;font-size:1.3rem;color:#1976d2;">¿Cómo deseas exportar?</h2>
+        <button id="btn-exportar-flutter" style="background:#1976d2;color:#fff;padding:10px 18px;border:none;border-radius:8px;font-size:1rem;margin-bottom:12px;cursor:pointer;width:100%;font-weight:600;">Exportar como Flutter</button>
+        <button id="btn-otra-opcion-flutter" style="background:#757575;color:#fff;padding:10px 18px;border:none;border-radius:8px;font-size:1rem;cursor:pointer;width:100%;font-weight:600;">Otra opción</button>
+        <br><button id="btn-cerrar-modal-flutter" style="margin-top:18px;background:none;border:none;color:#1976d2;font-size:1.1rem;cursor:pointer;">Cancelar</button>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    // Botón Exportar como Flutter
+    document.getElementById('btn-exportar-flutter')?.addEventListener('click', () => {
+      modal.remove();
+      this.pruebaq(allPagesContent, totalPages);
+    });
+    // Botón Otra opción
+    document.getElementById('btn-otra-opcion-flutter')?.addEventListener('click', () => {
+      modal.remove();
+      this.otraOpcionFlutter(allPagesContent, totalPages);
+    });
+    // Botón Cancelar
+    document.getElementById('btn-cerrar-modal-flutter')?.addEventListener('click', () => {
+      modal.remove();
+    });
   }
 
-  private async pruebaq(contenido: PageContent[], totalPages: number) {
-    // Procesar todas las páginas y enviar cada una a Gemini
+  private async otraOpcionFlutter(contenido: PageContent[], totalPages: number) {
 
     console.log('Contenido de todas las páginas:', contenido);
-    let componentes:files[] = [];
+    let componentes: files[] = [];
     for (let i = 0; i < totalPages; i++) {
       const html = contenido[i].html;
       const css = contenido[i].css;
-      //console.log(`HTML para página ${i + 1}:`, html);
-      //console.log(`CSS para página ${i + 1}:`, css);
       try {
-        componentes.push (await this.geminiService.textoAHtmlFlutter(html, css));
-        //console.log(`Flutter code para página ${i + 1}:`, flutterCode);
+        componentes.push(await this.geminiService.textoAHtmlFlutter(html, css));
       } catch (e) {
         console.error(`Error procesando página ${i + 1} con GeminiService:`, e);
       }
     }
-    // Validación de los componentes antes de exportar
     const valid = componentes.every(
       c => c && typeof c.classname === 'string' && typeof c.content === 'string'
     );
@@ -274,47 +276,68 @@ export class PizarraFlutterpageComponent {
       alert('Error: Algún componente generado no tiene la estructura correcta. Revisa la consola para más detalles.');
       return;
     }
-    console.log('Componentes generados:', componentes);
+    //this.iframeDataService.setComponentes(componentes);
+    // Generar el main.dart que use el primer componente generado
+    let mainCode = `import 'package:flutter/material.dart';\n\n`;
+
+    const cleanComponentes = componentes.map(c => ({
+      ...c,
+      content: c.content.replace(/import\s+['"]package:flutter\/material\.dart['"];?\s*/g, '')
+    }));
+    // Agregar todos los componentes generados
+    mainCode += cleanComponentes.map(c => c.content).join('\n\n');
+    // Crear una lista de nombres de clases de los componentes
+    const widgetNames = cleanComponentes.map(c => c.classname || 'MyWidget');
+    // Generar el main con home page y navegación
+    mainCode += `\n\nvoid main() {\n  runApp(const MyApp());\n}\n\n`;
+    mainCode += `class MyApp extends StatelessWidget {\n  const MyApp({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return MaterialApp(\n      title: 'Navigation Demo',\n      theme: ThemeData(primarySwatch: Colors.blue),\n      home: const MyHomePage(),\n    );\n  }\n}\n\n`;
+    mainCode += `class MyHomePage extends StatelessWidget {\n  const MyHomePage({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(\n        title: const Text('Navigation Demo'),\n      ),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: <Widget>[\n`;
+    // Agregar un botón para cada componente
+    widgetNames.forEach((name, i) => {
+      mainCode += `            ElevatedButton(\n              onPressed: () {\n                Navigator.push(\n                  context,\n                  MaterialPageRoute(builder: (context) => const ${name}()),\n                );\n              },\n              child: const Text('Go to ${name}'),\n            ),\n            const SizedBox(height: 20),\n`;
+    });
+    mainCode += `          ],\n        ),\n      ),\n    );\n  }\n}\n`;
+    const token = environment.githubToken; // Puedes cambiar esto para pedirlo al usuario si es necesario
+    // Llamar al servicio para crear el Gist
+    this.gistService.createGistFlutterCode(token, mainCode, 'Código Flutter generado desde la pizarra').subscribe({
+      next: (response: any) => {
+        const gistId = response.id;
+        alert('Gist creado con éxito. ID: ' + gistId);
+        this.iframeDataService.setGistId(gistId);
+        this.routes.navigate(['/ejecutarweb'], { queryParams: { gist: gistId } });
+      },
+      error: (err: any) => {
+        console.error('Error al crear el Gist:', err);
+        alert('Error al crear el Gist. Revisa la consola.');
+      }
+    });
+  }
+
+
+
+  private async pruebaq(contenido: PageContent[], totalPages: number) {
+    // Procesar todas las páginas y enviar cada una a Gemini
+    console.log('Contenido de todas las páginas:', contenido);
+    let componentes: files[] = [];
+    for (let i = 0; i < totalPages; i++) {
+      const html = contenido[i].html;
+      const css = contenido[i].css;
+      try {
+        componentes.push(await this.geminiService.textoAHtmlFlutter(html, css));
+      } catch (e) {
+        console.error(`Error procesando página ${i + 1} con GeminiService:`, e);
+      }
+    }
+    const valid = componentes.every(
+      c => c && typeof c.classname === 'string' && typeof c.content === 'string'
+    );
+    if (!valid) {
+      console.error('Error: Algún componente no tiene la estructura correcta:', componentes);
+      alert('Error: Algún componente generado no tiene la estructura correcta. Revisa la consola para más detalles.');
+      return;
+    }
     this.exportarFlutterService.crearArchivosYDescargarZipFlutter(componentes);
   }
-
-  private botonExportar() {
-    this.editor.Panels.addButton('options', {
-      id: 'mi-boton-exportar',
-      className: 'fa-brands fa-angular',
-      command: 'mi-exportar',
-      attributes: { title: 'exportar' },
-      active: false,
-    });
-
-    this.editor.Commands.add('mi-exportar', {
-      run: (editor: any, sender: any) => {
-        this.miFuncionPersonalizada2();
-      },
-    });
-  }
-
-  private miFuncionPersonalizada2() {
-    const totalPages = this.pages.length;
-    const allPagesContent: PageContent[] = [];
-
-    for (let i = 0; i < totalPages; i++) {
-      // Obtener el contenido directamente de las páginas almacenadas
-      const html = this.pages[i];
-      const css = this.pagescss[i];
-
-      // Agregar el contenido al array
-      allPagesContent.push({ html, css });
-    }
-
-    // console.log('Contenido de todas las páginas como JSON:', allPagesContent);
-    this.prueba(allPagesContent, totalPages);
-  }
-
-  private prueba(contenido: PageContent[], totalPages: number) {
-    this.exportarpizaarraservice.contenidot(contenido, totalPages);
-  }
-
 
 
 
@@ -414,17 +437,6 @@ export class PizarraFlutterpageComponent {
   }
   /* sockets----------------------------- */
 
-
-
-
-
-
-
-
-
-
-
-
   /* paginado */
 
   private updatePagination(): void {
@@ -491,176 +503,6 @@ export class PizarraFlutterpageComponent {
       }
       this.editor.setComponents(estilosycss)
     }
-  }
-
-  private addFlutterMenuPanel() {
-    // Añadir el botón al panel izquierdo (views)
-    this.editor.Panels.addButton('views', {
-      id: 'open-flutter-menu',
-      className: 'fa fa-cubes', // Icono FontAwesome
-      attributes: { title: 'Flutter Assistant' },
-      command: 'open-flutter-menu',
-      togglable: true,
-    });
-
-    // Añadir el comando para mostrar/ocultar el panel lateral derecho
-    this.editor.Commands.add('open-flutter-menu', {
-      run: (editor: any) => {
-        let panel = document.getElementById('flutter-menu-panel');
-        if (!panel) {
-          panel = document.createElement('div');
-          panel.id = 'flutter-menu-panel';
-          panel.className = 'panel__flutter-menu';
-          panel.style.position = 'fixed';
-          panel.style.top = '0';
-          panel.style.right = '0';
-          panel.style.width = '330px';
-          panel.style.height = '100vh';
-
-          panel.style.zIndex = '9999';
-          panel.style.marginTop = '40px';
-          panel.style.background = 'rgb(68,68,68)';
-          panel.style.padding = '24px 18px 18px 18px';
-          panel.style.borderLeft = '1.5px solid #e0e0e0';
-          panel.style.boxShadow = '-2px 0 12px rgba(0,0,0,0.08)';
-          panel.style.display = 'flex';
-          panel.style.flexDirection = 'column';
-          panel.innerHTML = `
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
-              <span style="font-size:1.4rem;font-weight:600;color:#1976d2;">Flutter Assistant</span>
-              <button id="close-flutter-menu-panel" style="margin-left:auto;background:none;border:none;font-size:1.5rem;color:#757575;cursor:pointer;">&times;</button>
-            </div>
-            <textarea id="flutter-assistant-textarea" placeholder="Escribe tu prompt..." style="color:white; width:100%;min-height:90px;max-height:200px;border-radius:10px;border:1.5px solid #bdbdbd;padding:12px;font-size:1rem;resize:vertical;margin-bottom:18px;"></textarea>
-            <div style="display:flex;gap:16px;align-items:center;margin-bottom:18px;">
-              <button id="flutter-assistant-audio" title="Enviar audio" style="background:#1976d2;border:none;border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.5rem;cursor:pointer;"><i class="fa fa-microphone"></i></button>
-              <button id="flutter-assistant-image" title="Enviar imagen" style="background:#43a047;border:none;border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.5rem;cursor:pointer;"><i class="fa fa-image"></i></button>
-            </div>
-            <button id="flutter-assistant-send" style="background:#1976d2;color:#fff;border:none;border-radius:8px;padding:10px 18px;font-size:1rem;cursor:pointer;width:100%;font-weight:600;">Enviar</button>
-          `;
-          document.body.appendChild(panel);
-          // Cerrar panel al hacer click en la X
-          document.getElementById('close-flutter-menu-panel')?.addEventListener('click', () => {
-            panel!.style.display = 'none';
-            // Desactivar el botón
-            const btn = document.querySelector('[data-id="open-flutter-menu"]');
-            if (btn) (btn as HTMLElement).classList.remove('gjs-pn-active');
-          });
-
-
-          // Botón Enviar: añade una tarjeta con imagen y texto al lienzo
-          const sendBtn = document.getElementById('flutter-assistant-send');
-          if (sendBtn) {
-            sendBtn.addEventListener('click', async () => {
-              const textarea = document.getElementById('flutter-assistant-textarea') as HTMLTextAreaElement;
-              if (textarea && textarea.value.trim()) {
-                try {
-                  let html = await this.geminiService.generacionHtmlFlutter(textarea.value.trim());
-                  // Limpiar delimitadores de bloque de código (```html ... ```)
-                  if (html) {
-                    html = html.replace(/^```html\s*/i, '').replace(/```\s*$/i, '');
-                  } else {
-                    html = '';
-                  }
-                 // console.log('HTML generado:', html);
-                  this.editor.addComponents(html);
-                  textarea.value = '';
-                } catch (e) {
-                  alert('Error generando HTML con GeminiService');
-                }
-              }
-            });
-          }
-          // Botón Enviar audio (grabación en directo)
-          const audioBtn = document.getElementById('flutter-assistant-audio');
-          if (audioBtn) {
-            let mediaRecorder: MediaRecorder | null = null;
-            let audioChunks: BlobPart[] = [];
-            let isRecording = false;
-
-            audioBtn.addEventListener('click', async () => {
-              const btn = audioBtn as HTMLButtonElement;
-              if (!isRecording) {
-                // Iniciar grabación
-                try {
-                  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                  mediaRecorder = new MediaRecorder(stream);
-                  audioChunks = [];
-                  mediaRecorder.ondataavailable = (e) => {
-                    if (e.data.size > 0) audioChunks.push(e.data);
-                  };
-                  mediaRecorder.onstop = async () => {
-                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                    // Convertir Blob a File
-                    const audioFile = new File([audioBlob], 'grabacion.webm', { type: 'audio/webm' });
-                    // Mostrar spinner/cargando
-                    (audioBtn as HTMLButtonElement).disabled = true;
-                    (audioBtn as HTMLButtonElement).innerHTML = `<i class="fa fa-spinner fa-spin"></i>`;
-                    try {
-                      let html = await this.geminiService.audioAHtmlFlutter(audioFile);
-                      if (html) {
-                        html = html.replace(/^```html\s*/i, '').replace(/```\s*$/i, '');
-                      } else {
-                        html = '';
-                      }
-                      this.editor.addComponents(html);
-                    } catch (e) {
-                      alert('Error procesando el audio con GeminiService');
-                    } finally {
-                      (audioBtn as HTMLButtonElement).disabled = false;
-                      (audioBtn as HTMLButtonElement).innerHTML = '<i class="fa fa-microphone"></i>';
-                      (audioBtn as HTMLButtonElement).style.background = '#1976d2';
-                      (audioBtn as HTMLButtonElement).title = 'Enviar audio';
-                    }
-                  };
-                  mediaRecorder.start();
-                  isRecording = true;
-                  (audioBtn as HTMLButtonElement).style.background = '#d32f2f'; // Cambia color para indicar grabando
-                  (audioBtn as HTMLButtonElement).title = 'Detener grabación';
-                } catch (err) {
-                  alert('No se pudo acceder al micrófono.');
-                }
-              } else {
-                // Detener grabación
-                if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                  mediaRecorder.stop();
-                }
-                isRecording = false;
-              }
-            });
-          }
-          // Botón Enviar imagen
-          const imageBtn = document.getElementById('flutter-assistant-image');
-          if (imageBtn) {
-            imageBtn.addEventListener('click', () => {
-              // Crear input file oculto
-              const input = document.createElement('input');
-              input.type = 'file';
-              input.accept = 'image/*';
-              input.style.display = 'none';
-              input.addEventListener('change', (event: any) => {
-                const file = event.target.files[0];
-                if (file) {
-                  const reader = new FileReader();
-                  reader.onload = (e: any) => {
-                    const imgHtml = `<img src='${e.target.result}' alt='Imagen subida' style='max-width:100%;border-radius:8px;margin:12px auto;display:block;'>`;
-                    this.editor.addComponents(imgHtml);
-                  };
-                  reader.readAsDataURL(file);
-                }
-              });
-              document.body.appendChild(input);
-              input.click();
-              setTimeout(() => document.body.removeChild(input), 1000);
-            });
-          }
-        }
-        panel.style.display = 'flex';
-      },
-      stop: (editor: any) => {
-        const panel = document.getElementById('flutter-menu-panel');
-        if (panel) panel.style.display = 'none';
-      },
-    });
   }
 
 }
