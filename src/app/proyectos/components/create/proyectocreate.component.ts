@@ -17,54 +17,30 @@ export default class ProyectocreateComponent {
   proyecto: Proyecto = {
     title: '',
     description: '',
-    tipo: TipoProyecto.BOCETO,
+    tipo: TipoProyecto.FLUUTERFIGMA,
     userid: this.userID(),
     data: '{}',
     sala: this.generateRandomString(),
   };
 
-  tiposProyecto = Object.values(TipoProyecto); // Para usar en el select del formulario
+  tiposProyecto = Object.values(TipoProyecto);
   proyectoService= inject( ProyectoService );
  
   router = inject( Router );
 
 
   onSubmit(): void {
-    
-      console.log('Formulario enviado:', this.proyecto); 
-    this.proyectoService.create(this.proyecto).subscribe(
-      
+      this.proyectoService.create(this.proyecto).subscribe(    
         (response) => {   
-
-        console.log('Proyecto creado:', response);
-        if(this.proyecto.tipo === TipoProyecto.BOCETO ){
-            // Aquí puedes redirigir al usuario a la página de boceto
-            console.log('Redirigiendo a la página de boceto...');
-             this.router.navigate(['/boceto',response.id ]);   
-        }
-           else if(this.proyecto.tipo === TipoProyecto.FIGMA ){
-            // Aquí puedes redirigir al usuario a la página de figma
-            console.log('Redirigiendo a la página de figma...');
-             this.router.navigate(['/pizarra',response.id ]);
-           }  
-          else if(this.proyecto.tipo === TipoProyecto.FLUUTERFIGMA ){
-              // Aquí puedes redirigir al usuario a la página de figma
-              console.log('Redirigiendo a la página de figma...');
-              this.router.navigate(['/pizarraflutter',response.id ]);
-            }
-        // Aquí puedes redirigir al usuario o mostrar un mensaje de éxito
+              this.router.navigate(['/pizarraflutter',response.id ]);    
       },
       (error) => {
         console.error('Error al crear el proyecto:', error);
-        // Aquí puedes mostrar un mensaje de error al usuario
       }
     );
-    // Aquí puedes agregar la lógica para enviar el proyecto al backend
   }
 
   private userID() :string {
-    //const user = JSON.parse(localStorage.getItem('userId') || '{}');
-
     return localStorage.getItem('userId') || '';
   } 
 

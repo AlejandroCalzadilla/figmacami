@@ -4,7 +4,7 @@ import {
   createUserContent,
   createPartFromUri,
 } from "@google/genai";
-import { environment } from "../../environments/environment.prod";
+import { environment } from "../../../../environments/environment.prod";
 
 @Injectable({
   providedIn: "root",
@@ -16,30 +16,8 @@ export class GeminiService {
 
   async textToImage(file: File): Promise<string> {
     const image = await this.ai.files.upload({ file });
-
-  /*   const prompt = `
-Eres un asistente especializado en convertir interfaces móviles (imágenes o bocetos) en código HTML + CSS. Cuando recibas una imagen:
-
-1. Analiza la composición y genera un archivo HTML que incluya todos los elementos detectados (contenedores, imágenes, iconos, textos, botones, etc.).
-2. Emplea CSS inline (atributo \`style\` en las mismas etiquetas HTML) para cada elemento.
-3. Diseña el CSS pensando exclusivamente en móviles:
-   - Establece un \`min-width\` de 375px para el contenedor principal.
-   - Usa unidades relativas (%, rem, vh/vw) cuando sea posible, pero asegura que el ancho mínimo no baje de 375px.
-   - Incluye reglas de \`overflow\` (\`overflow-x\` o \`overflow-y\`) en contenedores que puedan desbordarse para garantizar scroll donde haga falta.
-4. Para cada elemento gráfico (imágenes, dibujos, iconos):
-   - Inserta un placeholder HTML: \`<img src="placeholder.png" width="XXX" height="YYY" alt="…">\` con las dimensiones exactas que mide en el diseño original.
-   - Si se trata de un icono, utiliza un componente genérico: \`<svg class="icon-placeholder" width="XX" height="YY"></svg>\` con las mismas dimensiones.
-5. Preserva las proporciones, márgenes y paddings tal como aparecen en el mockup, traduciendo pixel a pixel.
-6. Garantiza que el resultado sea autocontenible: un único archivo .html con todo el CSS en atributos \`style\`, sin dependencias externas.
-7. Al final, devuelve únicamente el bloque de código completo entre \`<html>…</html>\`, sin comentarios ni explicaciones adicionales.
-`; */
-
-
     const response = await this.ai.models.generateContent({
-      model: "gemini-2.0-flash",
-       
-      
-      
+      model: "gemini-2.0-flash",  
       contents: [
         createUserContent([
           createPartFromUri(image.uri!, image.mimeType!),
@@ -75,8 +53,7 @@ Header sticky:
 - 0 scroll horizontal
 - Placeholders mantienen dimensiones originales
 - Usa los estilos del ejemplo como base
-`,
-      
+`,   
       },
     });
     console.log(response.text);
@@ -224,13 +201,24 @@ Formato de Respuesta:
 // Código Flutter 3 completo usando [${componentName}]
 // Comentarios explicativos en puntos críticos
 \`\`\`
+6.Si detectas un SVG, añade automáticamente al inicio:
+import 'package:flutter_svg/flutter_svg.dart';
+Convierte el SVG a un widget Dart usando:
+SvgPicture.string(
+  '''
+  <svg ...>...</svg>
+  ''',
+  width: ..., // OBLIGATORIO
+  height: ..., // OBLIGATORIO
+  fit: BoxFit.contain,
+)
 Input:
 HTML,CSS:
 \`\`\`html
 [${html}, ${css}]
 `;
     const response = await this.ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-flash-preview-05-20",
       contents: [
         createUserContent([
           prompt,
@@ -250,11 +238,6 @@ HTML,CSS:
 
 
 }
-
-
-
-
-
 
 export interface files {
   classname: string;

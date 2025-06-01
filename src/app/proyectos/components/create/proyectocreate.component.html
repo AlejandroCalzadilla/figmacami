@@ -1,62 +1,82 @@
-<section class="bg-white dark:bg-gray-900">
-    <div class="py-8 px-4 mx-auto max-w-2xl lg:py-16">
-      <h2 class="mb-4 text-xl font-bold text-gray-900 dark:text-white">Añadir un nuevo Proyecto</h2>
-      <form (ngSubmit)="onSubmit()">
-        <div class="grid gap-4 sm:grid-cols-2 sm:gap-6">
-          <div class="sm:col-span-2">
-            <label for="title" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Título</label>
-            <input
-              type="text"
-              id="title"
-              [(ngModel)]="proyecto.title"
-              name="title"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-              placeholder="Título del proyecto"
-              required
-            />
-          </div>
-          <div class="sm:col-span-2">
-            <label for="description" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Descripción</label>
-            <textarea
-              id="description"
-              [(ngModel)]="proyecto.description"
-              name="description"
-              rows="4"
-              class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-              placeholder="Descripción del proyecto"
-              required
-            ></textarea>
-          </div>
-          <div>
-            <label for="tipo" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de Proyecto</label>
-            <select
-              id="tipo"
-              [(ngModel)]="proyecto.tipo"
-              name="tipo"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+<section class="bg-gray-50 ">
+    <div class="bg-white mt-10 py-8 px-4 mx-auto max-w-2xl lg:py-16 rounded-lg shadow border border-gray-200  ">
+        <h2 class="mb-4 text-xl font-bold text-gray-900">Añadir un nuevo Proyecto</h2>
+        <form (ngSubmit)="onSubmit()" class="space-y-6">
+            <div class="grid gap-4 sm:grid-cols-2 sm:gap-6">
+                <!-- Campo Título -->
+                <div class="sm:col-span-2">
+                    <label for="title" class="block mb-2 text-sm font-medium text-gray-700">
+                        Título
+                    </label>
+                    <input
+                        type="text"
+                        id="title"
+                        [(ngModel)]="proyecto.title"
+                        name="title"
+                        class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-indigo-400 focus:border-indigo-400 block w-full p-2.5"
+                        placeholder="Título del proyecto"
+                        required
+                    />
+                </div>
+
+                <!-- Campo Descripción -->
+                <div class="sm:col-span-2">
+                    <label for="description" class="block mb-2 text-sm font-medium text-gray-700">
+                        Descripción
+                    </label>
+                    <textarea
+                        id="description"
+                        [(ngModel)]="proyecto.description"
+                        name="description"
+                        rows="4"
+                        class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-200 focus:ring-indigo-400 focus:border-indigo-400"
+                        placeholder="Descripción del proyecto"
+                        required
+                    ></textarea>
+                </div>
+
+                <!-- Campo Tipo de Proyecto -->
+                <div>
+                    <label for="tipo" class="block mb-2 text-sm font-medium text-gray-700">
+                        Tipo de Proyecto
+                    </label>
+                    <select
+                        id="tipo"
+                        [(ngModel)]="proyecto.tipo"
+                        name="tipo"
+                        class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-indigo-400 focus:border-indigo-400 block w-full p-2.5"
+                    >
+                        <option *ngFor="let tipo of tiposProyecto" [value]="tipo">{{ tipo }}</option>
+                    </select>
+                </div>
+
+                <!-- Campo Sala -->
+                <div>
+                    <label for="sala" class="block mb-2 text-sm font-medium text-gray-700">
+                        Sala
+                    </label>
+                    <input
+                        type="text"
+                        id="sala"
+                        [(ngModel)]="proyecto.sala"
+                        name="sala"
+                        class="bg-gray-100 border border-gray-200 text-gray-900 text-sm rounded-lg block w-full p-2.5 cursor-not-allowed"
+                        placeholder="Sala del proyecto"
+                        readonly
+                    />
+                </div>
+            </div>
+
+            <!-- Botón de enviar -->
+            <button
+                type="submit"
+                class="inline-flex items-center px-5 py-2.5 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-indigo-600 rounded-lg focus:ring-4 focus:ring-indigo-300 hover:bg-indigo-500 transition-colors"
             >
-              <option *ngFor="let tipo of tiposProyecto" [value]="tipo">{{ tipo }}</option>
-            </select>
-          </div>
-          <div>
-            <label for="sala" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Sala</label>
-            <input
-              type="text"
-              id="sala"
-              [(ngModel)]="proyecto.sala"
-              name="sala"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-              placeholder="Sala del proyecto"
-              readonly
-            />
-          </div>
-        </div>
-        <button
-          type="submit"
-          class="inline-flex items-center px-5 py-2.5 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-900 hover:bg-primary-800"
-        >
-          Crear Proyecto
-        </button>
-      </form>
+                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                </svg>
+                Crear Proyecto
+            </button>
+        </form>
     </div>
-  </section>
+</section>

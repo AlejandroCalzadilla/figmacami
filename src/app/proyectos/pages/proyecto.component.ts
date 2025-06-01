@@ -24,7 +24,7 @@ export default class ProyectoComponent {
          const userid=localStorage.getItem('userId') || '0';
          this.ProyectoService.findAll(userid).subscribe( (proyectos: Proyecto[]) => {
             this.proyectos = proyectos;
-            console.log("Proyectos cargados:", this.proyectos);
+            //console.log("Proyectos cargados:", this.proyectos);
         });
     }
 
@@ -39,16 +39,10 @@ export default class ProyectoComponent {
     }
 
     dibujar(proyecto: Proyecto): void {
-         if( proyecto.tipo === TipoProyecto.BOCETO ){
-            this.route.navigate(['/boceto',proyecto.id ]);
-         }
-         if( proyecto.tipo === TipoProyecto.FIGMA ){
-         this.route.navigate(['/pizarra',proyecto.id]); 
-        } 
-            if( proyecto.tipo === TipoProyecto.FLUUTERFIGMA ){
-                this.route.navigate(['/pizarraflutter',proyecto.id]); 
-            }
-            console.log("Proyecto dibujado:", proyecto); 
+        localStorage.setItem('proyectoId', proyecto.sala!);
+        localStorage.setItem('pId', proyecto.id!);
+        
+        this.route.navigate(['/pizarraflutter',proyecto.id]); 
     
     }
     

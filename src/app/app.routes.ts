@@ -1,28 +1,19 @@
 import { Routes } from '@angular/router';
-import { PizarrapageComponent } from './web/pizarra/pages/pizarrapage/pizarrapage.component';
 import { LoginComponent } from './auth/pages/login/login.component';
 import ProyectoComponent from './proyectos/pages/proyecto.component';
-import { BocetoComponent } from './web/boceto/pages/boceto.component';
 import { PizarraFlutterpageComponent } from './movil/pizarra/pages/pizarrapage/pizarrapageflutter.component';
 import { PizarraFlutterManualComponent } from './movil/vacio/pages/pizarraflutter.component';
 
 export const routes: Routes = [
     {
-       path: '', redirectTo: 'login', pathMatch: 'full'
+        path: '', redirectTo: 'login', pathMatch: 'full'
     },
 
-    {path: 'login', component: LoginComponent},
-
-    {
-        path: 'pizarra/:id',component: PizarrapageComponent
-    },
-
-     {
-        path: 'pizarraflutter/:id',component: PizarraFlutterpageComponent    },
+    { path: 'login', component: LoginComponent },
 
 
     {
-        path:'boceto/:id',component:BocetoComponent
+        path: 'pizarraflutter/:id', component: PizarraFlutterpageComponent
     },
 
     {
@@ -34,31 +25,27 @@ export const routes: Routes = [
     },
 
     {
-        path:'ejecutarweb', loadComponent: () => import('./pruebas_ejecucion_web/pruebas_web.component')
+        path: 'ejecutarweb', loadComponent: () => import('./movil/pizarra/pages/dartpad/pruebas_web.component')
     },
 
     {
- 
-        path:'register', loadComponent: () => import('./auth/pages/register/register.component')
+        path: 'register', loadComponent: () => import('./auth/pages/register/register.component')
     },
+    {
+        path: 'pizarraf', component: PizarraFlutterManualComponent
+    },
+
 
     {
-        path:'pizarraf',component: PizarraFlutterManualComponent
+
+        path: 'register2', loadComponent: () => import('./auth/pages/register/register.component')
     },
 
-   
 
-   
-    {
- 
-        path:'register2', loadComponent: () => import('./auth/pages/register/register.component')
-    },
-    
-
-    {path:'**', redirectTo: 'login', pathMatch: 'full'},
+    { path: '**', redirectTo: 'login', pathMatch: 'full' },
 
 
 
 
-    
+
 ];

@@ -1,8 +1,8 @@
 import { Injectable } from "@angular/core";
 import saveAs from "file-saver";
-import { environment } from "../../../environments/environment.prod";
+import { environment } from "../../../../environments/environment.prod";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { files } from "../gemini.service"
+import { files } from "./gemini.service"
 
 
 @Injectable({

@@ -5,18 +5,17 @@ import { io } from 'socket.io-client';
 import { ProyectoService } from './../../../../proyectos/services/proyecto.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Proyecto } from '../../../../proyectos/interfaces/proyecto';
-import { ExportarPizarraServiceFlutter } from '../../services/exportar_pizarra.service';
 import { PageContent } from '../../interfaces/pagecontent';
 import { addFlutterLayoutComponents } from '../../components/flutter/layouts';
 import { addFlutterWidgetComponents } from '../../components/flutter/widgets';
 import { addFlutterInputComponents } from '../../components/flutter/inputs';
 import { addFlutterNavigationComponents } from '../../components/flutter/navigation';
 import { addFlutterMaterialComponents } from '../../components/flutter/material';
-import { files, GeminiService } from '../../../../services/gemini.service';
-import { ExportadorFlutterService } from '../../../../services/movil/exportador_flutter.service';
+import { files, GeminiService } from '../../services/gemini.service';
+import { ExportadorFlutterService } from '../../services/exportador_flutter.service';
 import { addFlutterMenuPanel } from '../../components/flutter/flutter-menu-panel.util';
-import { IframeDataService } from '../../../../services/movil/iframe-data.service';
-import { GistService } from '../../../../services/movil/gist.service';
+import { IframeDataService } from '../../services/iframe-data.service';
+import { GistService } from '../../services/gist.service';
 import { environment } from '../../../../../environments/environment.prod';
 @Component({
   selector: 'app-pizarrapageflutter',
@@ -36,7 +35,6 @@ export class PizarraFlutterpageComponent {
   private id!: string;
   private proyecto!: Proyecto;
   private route = inject(ActivatedRoute);
-  private exportarpizaarraservice = inject(ExportarPizarraServiceFlutter);
   private exportarFlutterService = inject(ExportadorFlutterService);
   private geminiService = inject(GeminiService);
 
@@ -255,10 +253,44 @@ export class PizarraFlutterpageComponent {
     });
   }
 
-  private async otraOpcionFlutter(contenido: PageContent[], totalPages: number) {
+  private showLoadingModal(message: string) {
+    let modal = document.getElementById('loading-modal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'loading-modal';
+      modal.style.position = 'fixed';
+      modal.style.top = '0';
+      modal.style.left = '0';
+      modal.style.width = '100vw';
+      modal.style.height = '100vh';
+      modal.style.background = 'rgba(0,0,0,0.35)';
+      modal.style.display = 'flex';
+      modal.style.alignItems = 'center';
+      modal.style.justifyContent = 'center';
+      modal.style.zIndex = '99999';
+      modal.innerHTML = `<div style="background:#fff;padding:32px 28px;border-radius:14px;box-shadow:0 4px 24px rgba(0,0,0,0.18);min-width:320px;max-width:90vw;text-align:center;">
+        <h2 id="loading-modal-message" style="margin-bottom:18px;font-size:1.3rem;color:#1976d2;">${message}</h2>
+        <div class="spinner" style="margin: 24px auto 0; width: 48px; height: 48px; border: 6px solid #1976d2; border-top: 6px solid #e3e3e3; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+        <style>@keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }</style>
+      </div>`;
+      document.body.appendChild(modal);
+    } else {
+      const msg = document.getElementById('loading-modal-message');
+      if (msg) msg.textContent = message;
+      modal.style.display = 'flex';
+    }
+  }
 
-    console.log('Contenido de todas las páginas:', contenido);
+  private hideLoadingModal() {
+    const modal = document.getElementById('loading-modal');
+    if (modal) modal.remove();
+  }
+
+  private async otraOpcionFlutter(contenido: PageContent[], totalPages: number) {
+    // Paso 1: Mostrar modal con spinner y mensaje inicial
+    this.showLoadingModal('<span id="step-gemini">1. Generando código Flutter... <span id="check-gemini"></span></span><br><span id="step-gist">2. Subiendo a Gist... <span id="check-gist"></span></span>');
     let componentes: files[] = [];
+    // Paso 2: Generar código con Gemini
     for (let i = 0; i < totalPages; i++) {
       const html = contenido[i].html;
       const css = contenido[i].css;
@@ -268,45 +300,72 @@ export class PizarraFlutterpageComponent {
         console.error(`Error procesando página ${i + 1} con GeminiService:`, e);
       }
     }
+    // Palomita para Gemini
+    const checkGemini = document.getElementById('check-gemini');
+    if (checkGemini) {
+      checkGemini.innerHTML = '<span style="color:green;font-size:1.3em;">✔️</span>';
+    }
+    // Spinner en Gist
+    const checkGist = document.getElementById('check-gist');
+    if (checkGist) {
+      checkGist.innerHTML = '<span class="spinner" style="margin-left:8px; width: 18px; height: 18px; border: 3px solid #1976d2; border-top: 3px solid #e3e3e3; border-radius: 50%; display:inline-block; animation: spin 1s linear infinite; vertical-align:middle;"></span>';
+    }
+    // Validación
     const valid = componentes.every(
       c => c && typeof c.classname === 'string' && typeof c.content === 'string'
     );
     if (!valid) {
+      this.hideLoadingModal();
       console.error('Error: Algún componente no tiene la estructura correcta:', componentes);
       alert('Error: Algún componente generado no tiene la estructura correcta. Revisa la consola para más detalles.');
       return;
     }
-    //this.iframeDataService.setComponentes(componentes);
     // Generar el main.dart que use el primer componente generado
     let mainCode = `import 'package:flutter/material.dart';\n\n`;
-
     const cleanComponentes = componentes.map(c => ({
       ...c,
       content: c.content.replace(/import\s+['"]package:flutter\/material\.dart['"];?\s*/g, '')
     }));
-    // Agregar todos los componentes generados
     mainCode += cleanComponentes.map(c => c.content).join('\n\n');
-    // Crear una lista de nombres de clases de los componentes
     const widgetNames = cleanComponentes.map(c => c.classname || 'MyWidget');
-    // Generar el main con home page y navegación
     mainCode += `\n\nvoid main() {\n  runApp(const MyApp());\n}\n\n`;
     mainCode += `class MyApp extends StatelessWidget {\n  const MyApp({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return MaterialApp(\n      title: 'Navigation Demo',\n      theme: ThemeData(primarySwatch: Colors.blue),\n      home: const MyHomePage(),\n    );\n  }\n}\n\n`;
     mainCode += `class MyHomePage extends StatelessWidget {\n  const MyHomePage({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(\n        title: const Text('Navigation Demo'),\n      ),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: <Widget>[\n`;
-    // Agregar un botón para cada componente
     widgetNames.forEach((name, i) => {
       mainCode += `            ElevatedButton(\n              onPressed: () {\n                Navigator.push(\n                  context,\n                  MaterialPageRoute(builder: (context) => const ${name}()),\n                );\n              },\n              child: const Text('Go to ${name}'),\n            ),\n            const SizedBox(height: 20),\n`;
     });
     mainCode += `          ],\n        ),\n      ),\n    );\n  }\n}\n`;
-    const token = environment.githubToken; // Puedes cambiar esto para pedirlo al usuario si es necesario
-    // Llamar al servicio para crear el Gist
+    const token = environment.githubToken;
+    // Paso 3: Subir a Gist
     this.gistService.createGistFlutterCode(token, mainCode, 'Código Flutter generado desde la pizarra').subscribe({
       next: (response: any) => {
+        // Palomita para Gist
+        const checkGist2 = document.getElementById('check-gist');
+        if (checkGist2) {
+          checkGist2.innerHTML = '<span style="color:green;font-size:1.3em;">✔️</span>';
+        }
+        // Mostrar botón para ir a ejecutar web
         const gistId = response.id;
-        alert('Gist creado con éxito. ID: ' + gistId);
-        this.iframeDataService.setGistId(gistId);
-        this.routes.navigate(['/ejecutarweb'], { queryParams: { gist: gistId } });
+        const modal = document.getElementById('loading-modal');
+        if (modal) {
+          const msg = document.getElementById('loading-modal-message');
+          if (msg) {
+            msg.innerHTML = `<span id='step-gemini'>1. Generando código Flutter... <span style='color:green;font-size:1.3em;'>✔️</span></span><br><span id='step-gist'>2. Subiendo a Gist... <span style='color:green;font-size:1.3em;'>✔️</span></span><br><br><button id='btn-ir-ejecutarweb' style='margin-top:18px;background:#1976d2;color:#fff;padding:10px 18px;border:none;border-radius:8px;font-size:1rem;cursor:pointer;font-weight:600;'>Ir a ejecutar web</button>`;
+          }
+          setTimeout(() => {
+            const btn = document.getElementById('btn-ir-ejecutarweb');
+            if (btn) {
+              btn.onclick = () => {
+                this.hideLoadingModal();
+                this.iframeDataService.setGistId(gistId);
+                this.routes.navigate(['/ejecutarweb'], { queryParams: { gist: gistId } });
+              };
+            }
+          }, 100);
+        }
       },
       error: (err: any) => {
+        this.hideLoadingModal();
         console.error('Error al crear el Gist:', err);
         alert('Error al crear el Gist. Revisa la consola.');
       }

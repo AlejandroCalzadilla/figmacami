@@ -1,34 +1,69 @@
-<section class="bg-gray-50 dark:bg-gray-900">
+<section class="bg-gray-50">
     <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
-        <a href="#" class="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
-            <img class="w-8 h-8 mr-2" src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/logo.svg" alt="logo">
-            Flowbite    
+        <!-- Logo y título (usando indigo como color primario) -->
+        <a href="#" class="flex items-center mb-6 text-2xl font-semibold text-indigo-600">
+            <img class="w-8 h-8 mr-2" src="https://raw.githubusercontent.com/dnfield/flutter_svg/7d374d7107561cbd906d7c0ca26fef02cc01e7c8/example/assets/flutter_logo.svg?sanitize=true" alt="logo">
+            Flutter CamiloCode 
         </a>
-        <div class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
+        
+        <!-- Contenedor del formulario -->
+        <div class="w-full bg-white rounded-lg shadow border border-gray-200 sm:max-w-md xl:p-0">
             <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
-                <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                    Sign in to your account
+                <!-- Título (texto oscuro para mejor legibilidad) -->
+                <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
+                    Inicia sesión en tu cuenta
                 </h1>
+                
                 <form class="space-y-4 md:space-y-6" (ngSubmit)="login()" #loginForm="ngForm">
+                    <!-- Campo Email -->
                     <div>
-                        <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your email</label>
-                        <input type="email" name="email" id="email" [(ngModel)]="email" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="name@company.com" required>
+                        <label for="email" class="block mb-2 text-sm font-medium text-gray-700">
+                            Tu correo
+                        </label>
+                        <input 
+                            type="email" 
+                            name="email" 
+                            id="email" 
+                            [(ngModel)]="email" 
+                            class="bg-gray-50 border border-gray-200 text-gray-900 rounded-lg focus:ring-indigo-400 focus:border-indigo-400 block w-full p-2.5" 
+                            placeholder="name@gmail.com" 
+                            required
+                        >
                     </div>
+                    
+                    <!-- Campo Contraseña -->
                     <div>
-                        <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
-                        <input type="password" name="password" id="password" [(ngModel)]="password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                        <label for="password" class="block mb-2 text-sm font-medium text-gray-700">
+                            Contraseña
+                        </label>
+                        <input 
+                            type="password" 
+                            name="password" 
+                            id="password" 
+                            [(ngModel)]="password" 
+                            placeholder="••••••••" 
+                            class="bg-gray-50 border border-gray-200 text-gray-900 rounded-lg focus:ring-indigo-400 focus:border-indigo-400 block w-full p-2.5" 
+                            required
+                        >
                     </div>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-start">
-                            <div class="ml-3 text-sm">
-                                 <a class="bg-blue-600 " routerLink="/register" > register</a>
-                            </div>
-                        </div>
-                        <a href="#" class="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500">Forgot password?</a>
-                    </div>
-                    <button type="submit" class="w-full text-white bg-blue-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">Sign in</button>
-                    <p class="text-sm font-light text-gray-500 dark:text-gray-400">
-                        Don’t have an account yet? <a href="#" class="font-medium text-primary-600 hover:underline dark:text-primary-500">Sign up</a>
+                    
+                    <!-- Botón de Inicio de Sesión (color primario indigo) -->
+                    <button 
+                        type="submit" 
+                        class="w-full text-white bg-indigo-600 hover:bg-indigo-500 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                    >
+                        Iniciar sesión
+                    </button>
+                    
+                    <!-- Enlace de Registro (texto secundario con hover en indigo) -->
+                    <p class="text-sm font-light text-gray-500">
+                        ¿No tienes una cuenta? 
+                        <a 
+                            routerLink="/register" 
+                            class="font-medium text-indigo-600 hover:underline"
+                        >
+                            Regístrate
+                        </a>
                     </p>
                 </form>
             </div>
