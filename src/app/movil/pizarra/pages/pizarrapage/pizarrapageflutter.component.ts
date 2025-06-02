@@ -2,6 +2,9 @@ import { Component, inject } from '@angular/core';
 import grapesjs from 'grapesjs';
 import { CommonModule } from '@angular/common';
 import { io } from 'socket.io-client';
+import plugin from 'grapesjs-preset-webpage';
+
+
 import { ProyectoService } from './../../../../proyectos/services/proyecto.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Proyecto } from '../../../../proyectos/interfaces/proyecto';
@@ -17,6 +20,7 @@ import { addFlutterMenuPanel } from '../../components/flutter/flutter-menu-panel
 import { IframeDataService } from '../../services/iframe-data.service';
 import { GistService } from '../../services/gist.service';
 import { environment } from '../../../../../environments/environment.prod';
+import { addPaginationPanel } from '../../components/flutter/pagination-panel.util';
 @Component({
   selector: 'app-pizarrapageflutter',
   imports: [CommonModule],
@@ -74,9 +78,12 @@ export class PizarraFlutterpageComponent {
         container: '#gjs',
         height: '100%',
         width: '100%',
-        plugins: ['presetWebpage', 'gjsBasicBlocks'],
+        
+        plugins: ['presetWebpage', 'gjsBasicBlocks','grapesjs-plugin-forms'],
         storageManager: false,
         fromElement: false,
+        
+         
         deviceManager: {
           devices: [
 
@@ -88,8 +95,10 @@ export class PizarraFlutterpageComponent {
             },
           ],
         },
+        
 
       });
+
       // Poner el editor en modo móvil por defecto
       this.editor.setDevice('Mobile portrait');
       if (this.proyecto.data) {
@@ -133,8 +142,8 @@ export class PizarraFlutterpageComponent {
       this.botonguardar();
       //this.botonExportar();
       this.botonExportarFlutter();
-      this.updatePagination();
-
+      //this.updatePagination();
+     addPaginationPanel(this.editor, this);  
       addFlutterLayoutComponents(this.editor);
       addFlutterWidgetComponents(this.editor);
       addFlutterInputComponents(this.editor);
@@ -232,8 +241,8 @@ export class PizarraFlutterpageComponent {
       <div style="background:#fff;padding:32px 28px;border-radius:14px;box-shadow:0 4px 24px rgba(0,0,0,0.18);min-width:320px;max-width:90vw;text-align:center;">
         <h2 style="margin-bottom:18px;font-size:1.3rem;color:#1976d2;">¿Cómo deseas exportar?</h2>
         <button id="btn-exportar-flutter" style="background:#1976d2;color:#fff;padding:10px 18px;border:none;border-radius:8px;font-size:1rem;margin-bottom:12px;cursor:pointer;width:100%;font-weight:600;">Exportar como Flutter</button>
-        <button id="btn-otra-opcion-flutter" style="background:#757575;color:#fff;padding:10px 18px;border:none;border-radius:8px;font-size:1rem;cursor:pointer;width:100%;font-weight:600;">Otra opción</button>
-        <br><button id="btn-cerrar-modal-flutter" style="margin-top:18px;background:none;border:none;color:#1976d2;font-size:1.1rem;cursor:pointer;">Cancelar</button>
+        <button id="btn-otra-opcion-flutter" style="background:#757575;color:#fff;padding:10px 18px;border:none;border-radius:8px;font-size:1rem;cursor:pointer;width:100%;font-weight:600;">Exportar En Web </button>
+        <br><button id="btn-cerrar-modal-flutter" style="margin-top:18px;background:red; border-radius: 5px;padding: 8px;color:white;font-size:1.1rem;cursor:pointer;">Cancelar</button>
       </div>
     `;
     document.body.appendChild(modal);
@@ -496,56 +505,146 @@ export class PizarraFlutterpageComponent {
   }
   /* sockets----------------------------- */
 
-  /* paginado */
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  /* paginado */
   private updatePagination(): void {
     const paginationPanel = document.getElementById('pagination-panel');
     if (!paginationPanel) return;
 
-    paginationPanel.innerHTML = `
-      <button id="prev-page" title="Página Anterior"><i class="fa fa-chevron-left"></i></button>
-      <span>Página ${this.currentPage + 1} de ${this.pages.length}</span>
-      <button id="next-page" title="Página Siguiente"><i class="fa fa-chevron-right"></i></button>
-      <button id="add-page" title="Nueva Página"><i class="fa fa-plus"></i></button>
+    // Estilos del panel principal
+    paginationPanel.style.position = 'fixed';
+    paginationPanel.style.left = '20px';
+    paginationPanel.style.top = '50%';
+    paginationPanel.style.transform = 'translateY(-50%)';
+    paginationPanel.style.zIndex = '1000';
+    paginationPanel.style.backgroundColor = 'white';
+    paginationPanel.style.borderRadius = '12px';
+    paginationPanel.style.padding = '12px';
+    paginationPanel.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+
+    // Limpia el panel
+    paginationPanel.innerHTML = '';
+
+    // Contenedor de páginas (vertical)
+    const pageList = document.createElement('div');
+    pageList.style.display = 'flex';
+    pageList.style.flexDirection = 'column';
+    pageList.style.gap = '8px';
+    pageList.style.alignItems = 'flex-start';
+
+    // Renderiza cada página como item vertical
+    for (let i = 0; i < this.pages.length; i++) {
+        const pageItem = document.createElement('div');
+        pageItem.className = 'page-item';
+        pageItem.style.display = 'flex';
+        pageItem.style.alignItems = 'center';
+        pageItem.style.padding = '8px 12px';
+        pageItem.style.borderRadius = '8px';
+        pageItem.style.background = i === this.currentPage ? '#E3F2FD' : 'transparent';
+        pageItem.style.cursor = 'pointer';
+        pageItem.style.transition = 'all 0.2s ease';
+        pageItem.style.width = '100%';
+        pageItem.title = `Página ${i + 1}`;
+
+        // Ícono de página
+        const pageIcon = document.createElement('div');
+        pageIcon.style.width = '24px';
+        pageIcon.style.height = '24px';
+        pageIcon.style.borderRadius = '50%';
+        pageIcon.style.background = i === this.currentPage ? '#1976d2' : '#BDBDBD';
+        pageIcon.style.display = 'flex';
+        pageIcon.style.alignItems = 'center';
+        pageIcon.style.justifyContent = 'center';
+        pageIcon.style.marginRight = '12px';
+        pageIcon.style.color = 'white';
+        pageIcon.style.fontWeight = 'bold';
+        pageIcon.style.fontSize = '0.8em';
+        pageIcon.textContent = (i + 1).toString();
+        
+        // Nombre de página (puedes personalizarlo)
+        const pageName = document.createElement('span');
+        pageName.textContent = `Página ${i + 1}`;
+        pageName.style.color = i === this.currentPage ? '#1976d2' : '#424242';
+        pageName.style.fontSize = '0.9em';
+        pageName.style.fontWeight = i === this.currentPage ? '500' : '400';
+
+        pageItem.appendChild(pageIcon);
+        pageItem.appendChild(pageName);
+
+        // Selección de página
+        pageItem.onclick = () => {
+            if (this.currentPage !== i) {
+                this.saveCurrentPage();
+                this.currentPage = i;
+                this.loadPage(this.currentPage);
+                this.updatePagination();
+                this.notifyPageChange();
+            }
+        };
+
+        pageList.appendChild(pageItem);
+    }
+
+    // Botón para añadir nueva página
+    const addButton = document.createElement('div');
+    addButton.className = 'add-page-button';
+    addButton.style.display = 'flex';
+    addButton.style.alignItems = 'center';
+    addButton.style.padding = '8px 12px';
+    addButton.style.borderRadius = '8px';
+    addButton.style.cursor = 'pointer';
+    addButton.style.marginTop = '8px';
+    addButton.style.transition = 'all 0.2s ease';
+    addButton.style.color = '#1976d2';
+    addButton.innerHTML = `
+        <div style="width:24px;height:24px;margin-right:12px;display:flex;align-items:center;justify-content:center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        </div>
+        <span style="font-size:0.9em;">Nueva página</span>
     `;
-
-    const prevBtn = document.getElementById('prev-page') as HTMLButtonElement;
-    const nextBtn = document.getElementById('next-page') as HTMLButtonElement;
-    const addBtn = document.getElementById('add-page') as HTMLButtonElement;
-
-    prevBtn.disabled = this.currentPage === 0;
-    nextBtn.disabled = this.currentPage === this.pages.length - 1;
-
-    prevBtn.onclick = () => {
-      if (this.currentPage > 0) {
+    addButton.onclick = () => {
         this.saveCurrentPage();
-        this.currentPage--;
+        this.pages.push('<p>Nueva Página</p>');
+        this.pagescss.push('<style></style>');
+        this.currentPage = this.pages.length - 1;
         this.loadPage(this.currentPage);
         this.updatePagination();
         this.notifyPageChange();
-      }
     };
 
-    nextBtn.onclick = () => {
-      if (this.currentPage < this.pages.length - 1) {
-        this.saveCurrentPage();
-        this.currentPage++;
-        this.loadPage(this.currentPage);
-        this.updatePagination();
-        this.notifyPageChange();
-      }
-    };
+    // Efecto hover para botones
+    addButton.onmouseenter = () => addButton.style.background = '#F5F5F5';
+    addButton.onmouseleave = () => addButton.style.background = 'transparent';
 
-    addBtn.onclick = () => {
-      this.saveCurrentPage();
-      this.pages.push('<p>Nueva Página</p>');
-      this.pagescss.push('<style></style>');
-      this.currentPage = this.pages.length - 1;
-      this.loadPage(this.currentPage);
-      this.updatePagination();
-      this.notifyPageChange();
-    };
-  }
+    pageList.appendChild(addButton);
+    paginationPanel.appendChild(pageList);
+}
 
   private saveCurrentPage(): void {
     this.pages[this.currentPage] = this.editor.getHtml();

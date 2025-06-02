@@ -42,15 +42,7 @@ export function addFlutterWidgetComponents(editor: any) {
     attributes: { class: 'fa fa-image' },
   });
 
-  // TextField
-  editor.BlockManager.add('flutter-textfield', {
-    label: 'TextField',
-    category: widgetCategory,
-    content: `
-      <input data-gjs-type="flutter-textfield" type="text" placeholder="Escribe algo..." style="width: 100%; max-width: 320px; padding: 12px 16px; border: 1.5px solid #bdbdbd; border-radius: 8px; font-size: 1rem; background: #fff; color: #222; outline: none; margin: 8px 0; transition: border 0.2s;"/>
-    `,
-    attributes: { class: 'fa fa-i-cursor' },
-  });
+  
 
   // Switch
   editor.BlockManager.add('flutter-switch', {
