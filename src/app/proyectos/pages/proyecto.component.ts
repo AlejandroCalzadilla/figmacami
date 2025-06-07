@@ -1,5 +1,5 @@
-import { Component, Inject, inject } from "@angular/core";
-import { Proyecto, TipoProyecto } from "../interfaces/proyecto";
+import { Component, inject } from "@angular/core";
+import { Proyecto } from "../interfaces/proyecto";
 import { CommonModule } from "@angular/common";
 import { ProyectoService } from '../services/proyecto.service';
 import { Router } from '@angular/router';
@@ -41,11 +41,8 @@ export default class ProyectoComponent {
     dibujar(proyecto: Proyecto): void {
         localStorage.setItem('proyectoId', proyecto.sala!);
         localStorage.setItem('pId', proyecto.id!);
-        
         this.route.navigate(['/pizarraflutter',proyecto.id]); 
-    
     }
-    
 
     create(){
         

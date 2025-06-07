@@ -1,8 +1,6 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './auth/pages/login/login.component';
-import ProyectoComponent from './proyectos/pages/proyecto.component';
 import { PizarraFlutterpageComponent } from './movil/pizarra/pages/pizarrapage/pizarrapageflutter.component';
-import { PizarraFlutterManualComponent } from './movil/vacio/pages/pizarraflutter.component';
 
 export const routes: Routes = [
     {
@@ -31,9 +29,7 @@ export const routes: Routes = [
     {
         path: 'register', loadComponent: () => import('./auth/pages/register/register.component')
     },
-    {
-        path: 'pizarraf', component: PizarraFlutterManualComponent
-    },
+  
 
 
     {

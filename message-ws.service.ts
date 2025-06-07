@@ -4,7 +4,6 @@ import { Socket } from 'socket.io';
 @Injectable()
 export class MessageWsService {
   private connectedClients: Map<string, Socket> = new Map();
-  private roomPages: Map<string, { pages: string[], pagescss: string[] }> = new Map();
 
   registerClient(client: Socket) {
     this.connectedClients.set(client.id, client);
@@ -30,24 +29,5 @@ export class MessageWsService {
   isClientInRoom(clientId: string, roomId: string): boolean {
     const client = this.getClientById(clientId);
     return client ? client.rooms.has(roomId) : false;
-  }
-
-  initializeRoom(roomId: string) {
-    if (!this.roomPages.has(roomId)) {
-      this.roomPages.set(roomId, {
-        pages: ['<p>Page 1</p>'],
-        pagescss: ['<style>body{background-color: #fff;}</style>']
-      });
-    }
-  }
-
-  getRoomPages(roomId: string) {
-    return this.roomPages.get(roomId);
-  }
-
-  updateRoomPages(roomId: string, pages: string[], pagescss: string[]) {
-    if (this.roomPages.has(roomId)) {
-      this.roomPages.set(roomId, { pages, pagescss });
-    }
   }
 } 

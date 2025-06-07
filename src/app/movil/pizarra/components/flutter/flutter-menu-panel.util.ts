@@ -1,5 +1,8 @@
-// src/app/movil/pizarra/components/flutter/flutter-menu-panel.util.ts
-// Utilidad para agregar el panel Flutter Assistant a GrapesJS
+/**
+ * 
+ * archvio para generar el panel de chat para el graficador 
+ * 
+ */
 
 export function addFlutterMenuPanel(editor: any, geminiService: any) {
   // Añadir el botón al panel izquierdo (views)

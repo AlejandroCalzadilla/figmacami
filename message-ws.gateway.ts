@@ -34,7 +34,6 @@ export class MessageWsGateway implements OnGatewayConnection, OnGatewayDisconnec
   @SubscribeMessage('join-room')
   handleJoinRoom(client: Socket, roomId: string) {
     client.join(roomId);
-    this.messagesWsService.initializeRoom(roomId);
     console.log(`Cliente ${client.id} se unió a la sala ${roomId}`);
     return { success: true, roomId };
   }
@@ -59,18 +58,12 @@ export class MessageWsGateway implements OnGatewayConnection, OnGatewayDisconnec
     const { roomId, pageIndex, totalPages, pages, pagescss } = payload;
     
     if (client.rooms.has(roomId)) {
-      // Actualizar el estado de las páginas en la sala
-      if (totalPages > this.messagesWsService.getRoomPages(roomId)?.pages.length) {
-        this.messagesWsService.updateRoomPages(roomId, pages, pagescss);
-      }
-
-      // Reenviar los datos a todos los clientes en la misma sala
       client.to(roomId).emit('page-change', {
         roomId,
         pageIndex,
         totalPages,
-        pages: this.messagesWsService.getRoomPages(roomId)?.pages,
-        pagescss: this.messagesWsService.getRoomPages(roomId)?.pagescss
+        pages,
+        pagescss
       });
     }
   }

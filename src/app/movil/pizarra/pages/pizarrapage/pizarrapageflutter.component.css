@@ -9,6 +9,23 @@
 }
 
 
+
+#pagination-panel{
+  position: absolute;
+   top:5px;
+   left: 30%; 
+   transform: translateX(-50%);
+   z-index: 1000;
+   background: rgb(74, 74, 74);
+   color: white;
+  padding: 5px; 
+  border: 1px solid #ccc; 
+  border-radius: 5px; 
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1)
+   
+}
+
+
 #pagination-panel button {
   margin: 0 5px;
   padding: 5px 10px;
