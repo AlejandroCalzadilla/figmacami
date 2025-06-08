@@ -11,13 +11,13 @@ import { environment } from "../../../../environments/environment.prod";
 })
 
 export class GeminiService {
- 
+
   ai = new GoogleGenAI({ apiKey: environment.key });
 
   async textToImage(file: File): Promise<string> {
     const image = await this.ai.files.upload({ file });
     const response = await this.ai.models.generateContent({
-      model: "gemini-2.0-flash",  
+      model: "gemini-2.0-flash",
       contents: [
         createUserContent([
           createPartFromUri(image.uri!, image.mimeType!),
@@ -26,38 +26,37 @@ export class GeminiService {
       ],
       config: {
         systemInstruction: `
-Eres un experto convertidor de diseños móviles a HTML/CSS inline. Transforma imágenes de interfaces (apps, webs móviles) a código limpio y responsive siguiendo estas reglas:
-1. ESTRUCTURA
-- HTML semántico (header, main, button)
-- CSS 100% inline (solo atributos style)
-- Viewport móvil: <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-2. MOBILE-FIRST
-- Ancho mínimo: 375px
-- Botones de 44x44px mínimo
-- Sin hover, solo :active
-3. PLACEHOLDERS
-- Imágenes: <div style="width:[W]px; height:[H]px; background:linear-gradient(...)">
-- Iconos: SVG básico (<circle cx="12" cy="12" r="10" fill="#9E9E9E">)
-4.ANTI-OVERFLOW
-- overflow-x:hidden en contenedores
-- Texto: white-space:nowrap; text-overflow:ellipsis
-5.COMPONENTES BASE
-Header sticky:
-<header style="position:sticky; top:0; height:56px; display:flex; align-items:center; background:white; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
-6.BUENAS PRÁCTICAS
-- Usa Flexbox/Grid
-- Código auto-contenido (0 dependencias)
-- Fidelidad pixel-perfect al diseño
- IMPORTANTE:
-- Prioriza diseño sobre funcionalidad
-- 0 scroll horizontal
-- Placeholders mantienen dimensiones originales
-- Usa los estilos del ejemplo como base
-`,   
+        Eres un experto convertidor de diseños móviles a HTML/CSS inline. Transforma imágenes de interfaces (apps, webs móviles) a código limpio y responsive siguiendo estas reglas:
+        1. ESTRUCTURA
+        - HTML semántico (header, main, button)
+        - CSS 100% inline (solo atributos style)
+        - Viewport móvil: <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+        2. MOBILE-FIRST
+        - Ancho mínimo: 375px
+        - Botones de 44x44px mínimo
+        - Sin hover, solo :active
+        3. PLACEHOLDERS
+        - Imágenes: <div style="width:[W]px; height:[H]px; background:linear-gradient(...)">
+        - Iconos: SVG básico (<circle cx="12" cy="12" r="10" fill="#9E9E9E">)
+        4.ANTI-OVERFLOW
+        - overflow-x:hidden en contenedores
+        - Texto: white-space:nowrap; text-overflow:ellipsis
+        5.COMPONENTES BASE
+        Header sticky:
+        <header style="position:sticky; top:0; height:56px; display:flex; align-items:center; background:white; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
+        6.BUENAS PRÁCTICAS
+        - Usa Flexbox/Grid
+        - Código auto-contenido (0 dependencias)
+        - Fidelidad pixel-perfect al diseño
+         IMPORTANTE:
+        - Prioriza diseño sobre funcionalidad
+        - 0 scroll horizontal
+        - Placeholders mantienen dimensiones originales
+        - Usa los estilos del ejemplo como base
+        `,
       },
     });
-    console.log(response.text);
-
+    //console.log(response.text);
     return response.text ?? '';
   }
 
@@ -74,12 +73,16 @@ Header sticky:
         ]),
       ],
     });
-
-    // console.log(response.text);
     return response.text;
   }
 
 
+
+  /**
+   * funcion que genera un html con el prompt enviado
+   * @param texto 
+   * @returns 
+   */
   async generacionHtmlFlutter(texto: string) {
     const response = await this.ai.models.generateContent({
       model: "gemini-2.0-flash",
@@ -108,27 +111,15 @@ Header sticky:
         ]),
       ],
     });
-
-    // console.log(response.text);
     return response.text;
   }
 
-  async audioADescripcion(file: File): Promise<string> {
-    // Subir el archivo de audio
-    const audio = await this.ai.files.upload({ file });
-    // Llamar a Gemini con el archivo
-    const response = await this.ai.models.generateContent({
-      model: "gemini-2.0-flash",
-      contents: [
-        createUserContent([
-          "Describe este audio", // Puedes personalizar el prompt
-          createPartFromUri(audio.uri!, audio.mimeType!),
-        ]),
-      ],
-    });
-    return response.text ?? '';
-  }
-
+  
+  /**
+   *  de audio a html flutter
+   * @file file 
+   * @return el codigo html flutter
+   *  */
   async audioAHtmlFlutter(file: File): Promise<string> {
     // Subir el archivo de audio
     const audio = await this.ai.files.upload({ file });
@@ -146,77 +137,102 @@ Header sticky:
   }
 
 
+
+  /**
+   * Convierte HTML y CSS a código Flutter 3 (Dart) con buenas prácticas y prevención de errores comunes.
+   * @param html - Código HTML a convertir.
+   * @param css - Código CSS asociado al HTML.
+   * @returns Un objeto con el nombre de clase y el contenido del código Flutter generado.
+   */
   async textoAHtmlFlutter(html: string, css: string): Promise<files> {
     // Generar un nombre de componente aleatorio
     const randomStr = Math.random().toString(36).substring(2, 10);
     const componentName = `Component${randomStr}`;
 
     const prompt = `
-Objetivo:
-Convertir código HTML,CSS a Flutter 3 (Dart) usando nombre de clase específico y previniendo errores comunes.
-nstrucciones Técnicas:
-1.Estructura Base:
-\`\`\`dart
-class [${componentName}] extends StatelessWidget {
-  const [${componentName}]({super.key}); 
-  @override
-  Widget build(BuildContext context) {
-    return // Widget raíz con prevención de overflow
-  }
-}
-\`\`\`
-- Reemplazar \`[${componentName}]\` por el nombre proporcionado
-- Usar \`SingleChildScrollView\` como widget raíz para prevenir overflow vertical
-2. **Mapeo de Elementos (HTML → Flutter):**
-| HTML          | Flutter 3 (Dart)                                                                 |
-|---------------|----------------------------------------------------------------------------------|
-| \`<div>\`       | \`Container\`, \`SizedBox\` o \`Padding\` con restricciones de tamaño                  |
-| \`<h1>-<h6>\`   | \`Text()\` con \`Theme.of(context).textTheme.headlineX\`                         |
-| \`<p>\`         | \`Expanded(child: Text(..., overflow: TextOverflow.ellipsis))\`                  |
-| \`<img>\`       | \`Image.network()\` con \`BoxFit.cover\` Y dimensiones fijas (\`width\`/\`height\`) |
-| \`<button>\`    | \`ElevatedButton(onPressed: (){...})\`                                           |
-| \`<ul>/<ol>\`   | \`ListView.builder(shrinkWrap: true, physics: NeverScrollableScrollPhysics())\`  |
-3.Prevención de Errores (CRÍTICO):
-a) OVERFLOW:
-   - Todo \`Text\` dentro de \`Column\`/\`Row\` → Envolver en \`Expanded\` o \`Flexible\`
-   - Contenido vertical extenso → \`SingleChildScrollView(scrollDirection: Axis.vertical)\`
-   - Elementos horizontales → \`ListView(scrollDirection: Axis.horizontal)\`
-b) **RESTRICCIONES DE TAMAÑO:**
-   - Imágenes: Siempre especificar \`width\` y \`height\`
-   - Contenedores: Usar \`ConstrainedBox\` con \`maxHeight\`/\`maxWidth\` cuando sea necesario
-c) **NULL SAFETY (Flutter 3):**
-   - Todos parámetros requeridos usar \`required\`
-   - Widgets personalizados usar \`Key? key\` en constructor
-4. **Buenas Prácticas:**
-- Usar \`const\` para widgets estáticos
-- Agrupar widgets complejos en componentes personalizados
-- Textos largos siempre llevar \`overflow: TextOverflow.ellipsis\`
-- Especificar \`BoxFit\` en todas las imágenes
-5. Validaciones Requeridas:
-Verificar que ningún widget hijo pueda expandirse ilimitadamente
-Todos los textos en Column/Row envueltos en Expanded/Flexible
-Imágenes tienen dimensiones explícitas o BoxFit definido
-Formato de Respuesta:
-\`\`\`dart
-// Código Flutter 3 completo usando [${componentName}]
-// Comentarios explicativos en puntos críticos
-\`\`\`
-6.Si detectas un SVG, añade automáticamente al inicio:
-import 'package:flutter_svg/flutter_svg.dart';
-Convierte el SVG a un widget Dart usando:
-SvgPicture.string(
-  '''
-  <svg ...>...</svg>
-  ''',
-  width: ..., // OBLIGATORIO
-  height: ..., // OBLIGATORIO
-  fit: BoxFit.contain,
-)
-Input:
-HTML,CSS:
-\`\`\`html
-[${html}, ${css}]
-`;
+        Your task is to convert HTML and CSS into fully functional Flutter 3 (Dart) code.  
+        ### General Requirements:
+        - Use a \`StatelessWidget\` class named as provided.
+        - The root widget must be \`SingleChildScrollView\` to prevent vertical overflow.
+        - All code must be wrapped in a \`Material\` or \`Scaffold\` widget to ensure proper rendering of Material Design components.
+        ### Base Structure:
+        \`\`\`dart
+        class ${componentName} extends StatelessWidget {
+          const ${componentName}({super.key});
+          @override
+          Widget build(BuildContext context) {
+            return Scaffold(
+              body: SingleChildScrollView(
+                child: // converted content here
+              ),
+            );
+          }
+        }
+        \`\`\`
+        Replace ${componentName} with the provided component name.
+        ---
+        ### HTML → Flutter Element Mapping:
+        | HTML Element   | Flutter Widget                                                              |
+        |----------------|------------------------------------------------------------------------------|
+        | <div>          | Container, SizedBox, Padding depending on context and size                  |
+        | <h1>-<h6>      | Text(...) with Theme.of(context).textTheme.headlineX                        |
+        | <p>            | Text(...) wrapped in Expanded or Flexible with overflow: TextOverflow.ellipsis |
+        | <img>          | Image.network(...) with BoxFit.cover and fixed width and height             |
+        | <button>       | ElevatedButton(onPressed: () { ... })                                       |
+        | <ul>, <ol>     | ListView.builder(...) with shrinkWrap: true, NeverScrollableScrollPhysics() |
+        | <svg>          | Convert to SvgPicture.string(...) or SvgPicture.asset(...) using flutter_svg |
+        ---
+        ### Mandatory Rules and Validations:
+        1. Overflow:
+           - All Text widgets inside Column or Row must be wrapped in Expanded or Flexible.
+           - Use SingleChildScrollView for long vertical content.
+           - Use horizontal ListView for inline content.
+        2. Size Constraints:
+           - Images must have explicit width and height.
+           - Use ConstrainedBox with maxWidth or maxHeight to prevent unbounded growth in containers.
+        3. Null Safety:
+           - Use \`required\` for all required parameters.
+           - Custom widget constructors must accept \`Key? key\`.
+        4. Material Design:
+           - Any Material widget (e.g., ElevatedButton) must be inside a Scaffold or Material widget.
+        5. Best Practices:
+           - Use \`const\` for static widgets.
+           - Group complex layouts into custom components.
+           - Use \`overflow: TextOverflow.ellipsis\` for long text.
+           - Always define \`BoxFit\` for images.
+           - Use flutter_svg package for handling SVGs.
+        ---
+        ### SVG Conversion Example:
+
+        \`\`\`html
+        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" fill="black"/>
+        </svg>
+        \`\`\`
+
+        \`\`\`dart
+        import 'package:flutter_svg/flutter_svg.dart';
+        SvgPicture.string(
+          '''
+          <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" fill="black"/>
+          </svg>
+          '''
+        )
+        \`\`\`
+        ---
+        ### Output Format:
+        \`\`\`dart
+        // Full Dart code with a functional ComponentName class
+        // Explanatory comments for key parts (e.g., Expanded usage, image sizing, SVG usage)
+        \`\`\`
+        ### Input:
+        \`\`\`html
+        ${html},
+        ${css}
+        <!-- HTML and CSS code -->
+        \`\`\`
+        `;
     const response = await this.ai.models.generateContent({
       model: "gemini-2.5-flash-preview-05-20",
       contents: [
@@ -230,6 +246,7 @@ HTML,CSS:
     });
     let flutterCode = response.text ?? '';
     flutterCode = flutterCode.replace(/^```dart\s*/i, '').replace(/```\s*$/i, '');
+    flutterCode = flutterCode.replace(/^\s*import\s+['"][^'"]+['"];\s*$/gm, '');
     return {
       classname: componentName,
       content: flutterCode,

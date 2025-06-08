@@ -138,6 +138,7 @@ export class PizarraFlutterpageComponent {
       //this.botonExportar();
       this.botonExportarFlutter();
       this.updatePagination();
+      this.botonProyectos();
       //addPaginationPanel(this.editor, this);  
       addFlutterLayoutComponents(this.editor);
       addFlutterWidgetComponents(this.editor);
@@ -189,7 +190,24 @@ export class PizarraFlutterpageComponent {
     });
   }
 
-
+ public botonProyectos() {
+    this.editor.Panels.addButton('options', {
+      id: 'mi-boton-proyectos',
+      className: 'fa-solid fa-house',
+      command: 'mi-proyects',
+      attributes: { title: 'mi-proyects' },
+      active: false,
+    });
+    this.editor.Commands.add('mi-proyects', {
+      run: (editor: any, sender: any) => {
+        this.miFuncionHome();
+      },
+    });
+  }
+  public miFuncionHome() {
+    //this.saveCurrentPage();
+    this.routes.navigate(['/proyectos']);
+  }
 
 
 

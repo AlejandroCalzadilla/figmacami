@@ -76,7 +76,7 @@ export function addFlutterInputComponents(editor: any) {
     label: 'DatePicker',
     category: inputCategory,
     content: `
-      <input data-gjs-type="flutter-input-datepicker" type="date" style="width: 100%; max-width: 200px; padding: 12px 16px; border: 1.5px solid #bdbdbd; border-radius: 8px; font-size: 1rem; background: #fff; color: #222; outline: none; margin: 8px 0;">
+      <input  type="date" style="width: 100%; max-width: 200px; padding: 12px 16px; border: 1.5px solid #bdbdbd; border-radius: 8px; font-size: 1rem; background: #fff; color: #222; outline: none; margin: 8px 0;">
     `,
     attributes: { class: 'fa fa-calendar' },
   });
@@ -86,7 +86,7 @@ export function addFlutterInputComponents(editor: any) {
     label: 'TimePicker',
     category: inputCategory,
     content: `
-      <input data-gjs-type="flutter-input-timepicker" type="time" style="width: 100%; max-width: 160px; padding: 12px 16px; border: 1.5px solid #bdbdbd; border-radius: 8px; font-size: 1rem; background: #fff; color: #222; outline: none; margin: 8px 0;">
+      <input  type="time" style="width: 100%; max-width: 160px; padding: 12px 16px; border: 1.5px solid #bdbdbd; border-radius: 8px; font-size: 1rem; background: #fff; color: #222; outline: none; margin: 8px 0;">
     `,
     attributes: { class: 'fa fa-clock-o' },
   });
@@ -96,7 +96,7 @@ export function addFlutterInputComponents(editor: any) {
     label: 'Dropdown',
     category: inputCategory,
     content: `
-      <select data-gjs-type="flutter-input-dropdown" style="width: 100%; max-width: 220px; padding: 12px 16px; border: 1.5px solid #bdbdbd; border-radius: 8px; font-size: 1rem; background: #fff; color: #222; outline: none; margin: 8px 0;">
+      <select  style="width: 100%; max-width: 220px; padding: 12px 16px; border: 1.5px solid #bdbdbd; border-radius: 8px; font-size: 1rem; background: #fff; color: #222; outline: none; margin: 8px 0;">
         <option>Opción 1</option>
         <option>Opción 2</option>
         <option>Opción 3</option>
@@ -110,7 +110,7 @@ export function addFlutterInputComponents(editor: any) {
     label: 'FilePicker',
     category: inputCategory,
     content: `
-      <input data-gjs-type="flutter-input-filepicker" type="file" style="margin: 8px 0;">
+      <input  type="file" style="margin: 8px 0;">
     `,
     attributes: { class: 'fa fa-paperclip' },
   });

@@ -1,3 +1,4 @@
+import { showLoadingModal, hideLoadingModal } from './exportar-flutter.util';
 /**
  * 
  * archvio para generar el panel de chat para el graficador 
@@ -63,6 +64,7 @@ export function addFlutterMenuPanel(editor: any, geminiService: any) {
             const textarea = document.getElementById('flutter-assistant-textarea') as HTMLTextAreaElement;
             if (textarea && textarea.value.trim()) {
               try {
+                showLoadingModal('Generando HTML...');
                 let html = await geminiService.generacionHtmlFlutter(textarea.value.trim());
                 if (html) {
                   html = html.replace(/^```html\s*/i, '').replace(/```\s*$/i, '');
@@ -73,6 +75,8 @@ export function addFlutterMenuPanel(editor: any, geminiService: any) {
                 textarea.value = '';
               } catch (e) {
                 alert('Error generando HTML con GeminiService');
+              } finally {
+                hideLoadingModal();
               }
             }
           });
@@ -99,8 +103,9 @@ export function addFlutterMenuPanel(editor: any, geminiService: any) {
                   const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                   const audioFile = new File([audioBlob], 'grabacion.webm', { type: 'audio/webm' });
                   btn.disabled = true;
-                  btn.innerHTML = `<i class="fa fa-spinner fa-spin"></i>`;
+                  btn.innerHTML = `<i class=\"fa fa-spinner fa-spin\"></i>`;
                   try {
+                    showLoadingModal('Procesando audio...');
                     let html = await geminiService.audioAHtmlFlutter(audioFile);
                     if (html) {
                       html = html.replace(/^```html\s*/i, '').replace(/```\s*$/i, '');
@@ -112,9 +117,10 @@ export function addFlutterMenuPanel(editor: any, geminiService: any) {
                     alert('Error procesando el audio con GeminiService');
                   } finally {
                     btn.disabled = false;
-                    btn.innerHTML = '<i class="fa fa-microphone"></i>';
+                    btn.innerHTML = '<i class=\"fa fa-microphone\"></i>';
                     btn.style.background = '#1976d2';
                     btn.title = 'Enviar audio';
+                    hideLoadingModal();
                   }
                 };
                 mediaRecorder.start();
@@ -144,6 +150,7 @@ export function addFlutterMenuPanel(editor: any, geminiService: any) {
               const file = event.target.files[0];
               if (file) {
                 try {
+                  showLoadingModal('Procesando imagen...');
                   let html = await geminiService.textToImage(file);
                   if (html) {
                     html = html.replace(/^```html\s*/i, '').replace(/```\s*$/i, '');
@@ -153,6 +160,8 @@ export function addFlutterMenuPanel(editor: any, geminiService: any) {
                   editor.addComponents(html);
                 } catch (e) {
                   alert(`Error generando HTML desde imagen con GeminiService ${e}`);
+                } finally {
+                  hideLoadingModal();
                 }
               }
             });

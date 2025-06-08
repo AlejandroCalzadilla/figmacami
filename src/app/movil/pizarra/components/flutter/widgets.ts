@@ -49,7 +49,7 @@ export function addFlutterWidgetComponents(editor: any) {
     label: 'Switch',
     category: widgetCategory,
     content: `
-      <label data-gjs-type="flutter-switch" style="display: inline-flex; align-items: center; cursor: pointer; gap: 8px;">
+      <label  style="display: inline-flex; align-items: center; cursor: pointer; gap: 8px;">
         <input type="checkbox" style="appearance: none; width: 36px; height: 20px; background: #bdbdbd; border-radius: 12px; position: relative; outline: none; transition: background 0.2s;">
         <span style="font-size: 1rem; color: #222;">Switch</span>
       </label>
@@ -62,7 +62,7 @@ export function addFlutterWidgetComponents(editor: any) {
     label: 'Slider',
     category: widgetCategory,
     content: `
-      <input data-gjs-type="flutter-slider" type="range" min="0" max="100" value="50" style="width: 180px; accent-color: #1976d2; margin: 8px 0;">
+      <input  type="range" min="0" max="100" value="50" style="width: 180px; accent-color: #1976d2; margin: 8px 0;">
     `,
     attributes: { class: 'fa fa-sliders' },
   });
@@ -72,7 +72,7 @@ export function addFlutterWidgetComponents(editor: any) {
     label: 'Divider',
     category: widgetCategory,
     content: `
-      <hr data-gjs-type="flutter-divider" style="border: none; border-top: 2px solid #e0e0e0; margin: 16px 0;"/>
+      <hr  style="border: none; border-top: 2px solid #e0e0e0; margin: 16px 0;"/>
     `,
     attributes: { class: 'fa fa-minus' },
   });
@@ -82,7 +82,7 @@ export function addFlutterWidgetComponents(editor: any) {
     label: 'CircleAvatar',
     category: widgetCategory,
     content: `
-      <img data-gjs-type="flutter-circle-avatar" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Avatar" style="width: 56px; height: 56px; border-radius: 50%; object-fit: cover; box-shadow: 0 1px 4px rgba(0,0,0,0.10);"/>
+      <img  src="https://randomuser.me/api/portraits/men/32.jpg" alt="Avatar" style="width: 56px; height: 56px; border-radius: 50%; object-fit: cover; box-shadow: 0 1px 4px rgba(0,0,0,0.10);"/>
     `,
     attributes: { class: 'fa fa-user-circle' },
   });
@@ -92,7 +92,7 @@ export function addFlutterWidgetComponents(editor: any) {
     label: 'FloatingActionButton',
     category: widgetCategory,
     content: `
-      <button data-gjs-type="flutter-fab" style="width: 56px; height: 56px; border-radius: 50%; background: #1976d2; color: #fff; border: none; box-shadow: 0 4px 12px rgba(25,118,210,0.18); font-size: 2rem; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer;">
+      <button  style="width: 56px; height: 56px; border-radius: 50%; background: #1976d2; color: #fff; border: none; box-shadow: 0 4px 12px rgba(25,118,210,0.18); font-size: 2rem; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer;">
         ＋
       </button>
     `,
@@ -104,7 +104,7 @@ export function addFlutterWidgetComponents(editor: any) {
     label: 'Checkbox',
     category: widgetCategory,
     content: `
-      <label data-gjs-type="flutter-checkbox" style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+      <label  style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
         <input type="checkbox" style="width: 20px; height: 20px; accent-color: #1976d2;">
         <span style="font-size: 1rem; color: #222;">Checkbox</span>
       </label>
@@ -117,7 +117,7 @@ export function addFlutterWidgetComponents(editor: any) {
     label: 'Radio',
     category: widgetCategory,
     content: `
-      <label data-gjs-type="flutter-radio" style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+      <label  style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
         <input type="radio" name="radio-group" style="width: 20px; height: 20px; accent-color: #1976d2;">
         <span style="font-size: 1rem; color: #222;">Radio</span>
       </label>
@@ -130,7 +130,7 @@ export function addFlutterWidgetComponents(editor: any) {
     label: 'ListTile',
     category: widgetCategory,
     content: `
-      <div data-gjs-type="flutter-listtile" style="display: flex; align-items: center; gap: 16px; background: #fff; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); padding: 12px 20px; margin: 8px 0;">
+      <div  style="display: flex; align-items: center; gap: 16px; background: #fff; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); padding: 12px 20px; margin: 8px 0;">
         <img src="https://randomuser.me/api/portraits/men/32.jpg" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
         <div style="flex: 1;">
           <div style="font-weight: 600; color: #222;">Título</div>
@@ -147,7 +147,7 @@ export function addFlutterWidgetComponents(editor: any) {
     label: 'Chip',
     category: widgetCategory,
     content: `
-      <span data-gjs-type="flutter-chip" style="display: inline-flex; align-items: center; gap: 6px; background: #e3f2fd; color: #1976d2; border-radius: 16px; padding: 6px 16px; font-size: 1rem; font-weight: 500; margin: 4px 0;">Chip</span>
+      <span  style="display: inline-flex; align-items: center; gap: 6px; background: #e3f2fd; color: #1976d2; border-radius: 16px; padding: 6px 16px; font-size: 1rem; font-weight: 500; margin: 4px 0;">Chip</span>
     `,
     attributes: { class: 'fa fa-tag' },
   });
@@ -157,7 +157,7 @@ export function addFlutterWidgetComponents(editor: any) {
     label: 'ProgressIndicator',
     category: widgetCategory,
     content: `
-      <div data-gjs-type="flutter-progress-indicator" style="width: 100%; max-width: 220px; height: 6px; background: #e0e0e0; border-radius: 4px; overflow: hidden; margin: 12px 0;">
+      <div  style="width: 100%; max-width: 220px; height: 6px; background: #e0e0e0; border-radius: 4px; overflow: hidden; margin: 12px 0;">
         <div style="width: 60%; height: 100%; background: #1976d2; border-radius: 4px;"></div>
       </div>
     `,

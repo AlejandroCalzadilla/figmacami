@@ -2,3 +2,19 @@
 @import "tailwindcss";
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/* #gjs, .gjs-pn-panel, .gjs-pn-views, .gjs-pn-options, .gjs-pn-devices, .gjs-pn-commands, .gjs-pn-buttons {
+  background: #fff !important;
+  color: #222 !important;
+}
+.gjs-pn-panel, .gjs-pn-views, .gjs-pn-options, .gjs-pn-devices, .gjs-pn-commands, .gjs-pn-buttons {
+  border-color: #e0e0e0 !important;
+}
+.gjs-pn-btn {
+  color: #222 !important;
+}
+.gjs-pn-btn.gjs-pn-active {
+  background: #e3f2fd !important;
+  color: #1976d2 !important;
+} */
+
