@@ -61,8 +61,8 @@ private readonly baseUrl: string = environment.baseUrl;
 
   logout() {
     localStorage.removeItem('token');
-    this._currentUser.set(null);
-    this._authStatus.set( AuthStatus.notAuthenticated );
+   // this._currentUser.set(null);
+    //this._authStatus.set( AuthStatus.notAuthenticated );
   }
     
 }

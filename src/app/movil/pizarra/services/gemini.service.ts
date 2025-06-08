@@ -14,6 +14,15 @@ export class GeminiService {
 
   ai = new GoogleGenAI({ apiKey: environment.key });
 
+
+
+
+  /**
+   * en base una imagen genera codigo html de vistas o interfaces de usuario estilo movil
+   * y devuelve codigo 
+   *  
+   */
+
   async textToImage(file: File): Promise<string> {
     const image = await this.ai.files.upload({ file });
     const response = await this.ai.models.generateContent({

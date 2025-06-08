@@ -3,14 +3,32 @@
         <div class="bg-white relative shadow-md sm:rounded-lg overflow-hidden border border-gray-200">
             <!-- Header con botón de acción -->
             <div class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
-                <div (click)="create()" class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
-                    <button type="button" class="flex items-center justify-center text-white bg-indigo-600 hover:bg-indigo-500 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 focus:outline-none transition-colors">
-                        <svg class="h-3.5 w-3.5 mr-2" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                            <path clip-rule="evenodd" fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" />
+                <div (click)="create()"
+                    class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+                    <button type="button"
+                        class="flex items-center justify-center text-white bg-indigo-600 hover:bg-indigo-500 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 focus:outline-none transition-colors">
+                        <svg class="h-3.5 w-3.5 mr-2" fill="currentColor" viewbox="0 0 20 20"
+                            xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <path clip-rule="evenodd" fill-rule="evenodd"
+                                d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" />
                         </svg>
                         Añadir Proyecto
-                    </button>   
+                    </button>
                 </div>
+
+                <!-- Botón Cerrar Sesión en la esquina inferior derecha del div padre -->
+                <button type="button"
+                    class="  z-10 flex items-center justify-center text-white bg-red-600 hover:bg-red-500 focus:ring-4 focus:ring-red-300 font-medium rounded-full text-sm px-1 py-2 shadow-lg transition-colors"
+                    (click)="cerrarSesion()">
+                    <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                            d="M3 10a1 1 0 011-1h8V7a1 1 0 112 0v6a1 1 0 11-2 0v-2H4a1 1 0 01-1-1zM17 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1z" />
+                    </svg>
+                    Cerrar sesión
+                </button>
+
+
+
             </div>
 
             <!-- Tabla de proyectos -->
@@ -36,10 +54,12 @@
                             <td class="px-4 py-3">{{proyecto.updated }}</td>
                             <td class="px-4 py-3">{{proyecto.tipo }}</td>
                             <td class="flex px-4 py-3">
-                                <button type="button" (click)="dibujar(proyecto)" class="m-1 inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-indigo-600 rounded-lg hover:bg-indigo-500 focus:ring-4 focus:ring-indigo-300 transition-colors">
+                                <button type="button" (click)="dibujar(proyecto)"
+                                    class="m-1 inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-indigo-600 rounded-lg hover:bg-indigo-500 focus:ring-4 focus:ring-indigo-300 transition-colors">
                                     Dibujar
                                 </button>
-                                <button type="button" (click)="delete(proyecto)" class="m-1 inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-red-500 rounded-lg hover:bg-red-600 focus:ring-4 focus:ring-red-300 transition-colors">
+                                <button type="button" (click)="delete(proyecto)"
+                                    class="m-1 inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-red-500 rounded-lg hover:bg-red-600 focus:ring-4 focus:ring-red-300 transition-colors">
                                     Eliminar
                                 </button>
                             </td>

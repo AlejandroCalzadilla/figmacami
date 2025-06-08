@@ -47,6 +47,13 @@ export class PizarraFlutterpageComponent {
   private lastReceivedTimestamp: number = 0;
   private lastSentTimestamp: number = 0;
 
+
+
+  /**
+   * 
+   * cundo se inicializa el componente, se suscribe a los parámetros de la ruta
+   * 
+   */
   ngOnInit(): void {
     // Suscribirse a los parámetros de la ruta
     this.route.params.subscribe(params => {
@@ -57,6 +64,8 @@ export class PizarraFlutterpageComponent {
           if (Array.isArray(resp) && resp.length > 0) {
             this.proyecto = resp[0]; // Asignar el primer elemento del array
             this.roomId = this.proyecto.sala; // Cambia esto según tu lógica 
+           
+            /* inicializa la pizarra */
             this.initializeEditor();
           } else {
             console.error("El servidor devolvió un array vacío o un formato inesperado:", resp);
@@ -70,18 +79,27 @@ export class PizarraFlutterpageComponent {
   }
 
 
+  /**
+   * Inicializa el editor (pizarra ) de GrapesJS y configura los componentes y estilos
+   */
   private initializeEditor(): void {
     try {
       console.log('Inicializando GrapesJS...');
+      /**
+       * inicaliza la pizarra con sus atriutos tamañoa ,plugins y el formato mobile portrait
+       * 
+       */
       this.editor = grapesjs.init({
         container: '#gjs',
         height: '100%',
         width: '100%',
-
         plugins: ['presetWebpage', 'gjsBasicBlocks', 'grapesjs-plugin-forms'],
         storageManager: false,
         fromElement: false,
         deviceManager: {
+          /**
+           * configuracion para que sea parecido a un movil
+           */
           devices: [
             {
               name: 'Mobile portrait',
@@ -96,6 +114,10 @@ export class PizarraFlutterpageComponent {
 
       // Poner el editor en modo móvil por defecto
       this.editor.setDevice('Mobile portrait');
+      /**
+       * 
+       * carga los datos del proyecto en la pizarra si que hay algo guardado
+       */
       if (this.proyecto.data) {
         try {
           let parsedData: any;
@@ -134,18 +156,37 @@ export class PizarraFlutterpageComponent {
       this.editor.on('change:changesCount', () => {
         debouncedSendEditorState();
       }); */
+     
+     
+     
+      /** 
+       * botones de la pizarra 
+      */
+
+      
       this.botonguardar();
-      //this.botonExportar();
+      
       this.botonExportarFlutter();
+      /**
+       * funciones para la paginacion 
+       */
       this.updatePagination();
+
+      /**
+       * boton para volver a la lista de proyectos
+       */
       this.botonProyectos();
-      //addPaginationPanel(this.editor, this);  
+     
+
+      // Cargar los componentes de Flutter
       addFlutterLayoutComponents(this.editor);
       addFlutterWidgetComponents(this.editor);
       addFlutterInputComponents(this.editor);
       addFlutterNavigationComponents(this.editor);
       addFlutterMaterialComponents(this.editor);
       addFlutterMenuPanel(this.editor, this.geminiService); // <-- Ahora importado y llamado aquí
+    
+    
     } catch (error) {
       console.error('Error al inicializar GrapesJS:', error);
     }
@@ -155,6 +196,14 @@ export class PizarraFlutterpageComponent {
     const panel = document.getElementById('flutter-menu-panel');
     if (panel) panel.remove();
   }
+
+
+
+  /** 
+   *  ------------------------------GUARDA DIAGRAMA-----------------------------
+    * Agrega un botón personalizado al panel de GrapesJS para guardar el diagrama
+    * Este botón ejecuta el comando 'mi-comando' que guarda el diagrama actual
+  */
 
   public botonguardar() {
     this.editor.Panels.addButton('options', {
@@ -190,6 +239,32 @@ export class PizarraFlutterpageComponent {
     });
   }
 
+//--------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  /**
+   * ------------------------------------VUELVE A PROYECTOS --------------------
+   * Agrega un botón personalizado al panel de GrapesJS para navegar a la página de proyectos
+   * Este botón ejecuta el comando 'mi-proyects' que redirige a la página de proyectos
+   */
+
  public botonProyectos() {
     this.editor.Panels.addButton('options', {
       id: 'mi-boton-proyectos',
@@ -211,6 +286,17 @@ export class PizarraFlutterpageComponent {
 
 
 
+
+
+
+
+
+  /**
+   * ------------------------------------EXPORTAR A FLUTTER --------------------
+   * Agrega un botón personalizado al panel de GrapesJS para exportar el diagrama a Flutter
+   * Este botón ejecuta el comando 'mi-exportar-flutter' que maneja la exportación
+   */
+
   public botonExportarFlutter() {
     this.editor.Panels.addButton('options', {
       id: 'mi-boton-exportar-flutter',
@@ -226,8 +312,13 @@ export class PizarraFlutterpageComponent {
     });
   }
 
+
+
+
   private miFuncionPersonalizada3() {
+    //guarda 
     this.saveCurrentPage();
+
     const totalPages = this.pages.length;
     const allPagesContent: PageContent[] = [];
     for (let i = 0; i < totalPages; i++) {
@@ -238,14 +329,27 @@ export class PizarraFlutterpageComponent {
     exportarFlutterModal(
       allPagesContent,
       totalPages,
-      this.pruebaq.bind(this),
-      this.otraOpcionFlutter.bind(this)
+      //el cliente elije exportar zip
+      this.exportarPorZip.bind(this),
+      //cliente elije exportar web , por dartpad
+      this.exportarWeb.bind(this)
     );
   }
 
   private showLoadingModal = showLoadingModal;
   private hideLoadingModal = hideLoadingModal;
-  private async otraOpcionFlutter(contenido: PageContent[], totalPages: number) {
+
+
+
+
+
+
+  /**
+   * Exporta el contenido de la pizarra a Flutter Web o Zip
+   * @param contenido - Contenido de las páginas
+   * @param totalPages - Número total de páginas
+   */ 
+  private async exportarWeb(contenido: PageContent[], totalPages: number) {
     await exportarFlutterWeb(
       contenido,
       totalPages,
@@ -258,7 +362,13 @@ export class PizarraFlutterpageComponent {
     );
   }
 
-  private async pruebaq(contenido: PageContent[], totalPages: number) {
+
+  /**
+   * Exporta el contenido de la pizarra a un archivo Zip
+   * @param contenido - Contenido de las páginas
+   * @param totalPages - Número total de páginas
+   */
+  private async exportarPorZip(contenido: PageContent[], totalPages: number) {
     await exportarFlutterZip(
       contenido,
       totalPages,
@@ -266,6 +376,8 @@ export class PizarraFlutterpageComponent {
       this.exportarFlutterService
     );
   }
+
+//-----------------------------------------------------
 
 
 

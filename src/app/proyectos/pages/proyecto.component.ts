@@ -3,6 +3,7 @@ import { Proyecto } from "../interfaces/proyecto";
 import { CommonModule } from "@angular/common";
 import { ProyectoService } from '../services/proyecto.service';
 import { Router } from '@angular/router';
+import { AuthService } from "../../auth/services/auth.service";
 
 @Component({
     selector: 'app-proyecto',
@@ -18,6 +19,7 @@ export default class ProyectoComponent {
     proyectoSeleccionado: Proyecto | null = null; // Proyecto actualmente seleccionado
     private ProyectoService = inject( ProyectoService ); 
      
+    private authservice = inject(AuthService); // Servicio de autenticación
     private route = inject(Router) // Rutas de la aplicación
 
     ngOnInit(): void {
@@ -56,6 +58,13 @@ export default class ProyectoComponent {
         });
     }
 
+    cerrarSesion() {
+  // Tu lógica de cierre de sesión aquí
+  // Por ejemplo:
+  this.authservice.logout();
+  this.route.navigate(['/login']);
+  alert('Sesión cerrada');
+}
 
 
 }
